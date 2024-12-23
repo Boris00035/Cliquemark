@@ -52,10 +52,13 @@ fn build_ui(app: &Application) {
         .child(&master_box)
         .build()
     );
+    // main_window.set_size_request(750, -1);
 
     // settings container 
     let settings_box = Box::builder()
         .margin_start(50)
+        .margin_bottom(50)
+        .margin_top(50)
         .valign(Align::Center)
         .halign(Align::Center)
         .orientation(Orientation::Vertical)
