@@ -1,8 +1,9 @@
 use gtk::prelude::*;
+use adw::Application;
 use gtk::{
     glib, 
     Align, 
-    Application, 
+    // Application, 
     ApplicationWindow, 
     Box, 
     Orientation, 
@@ -21,10 +22,10 @@ const APP_ID: &str = "org.gtk_rs.Cliquemark";
 
 fn main() -> glib::ExitCode {
     // Force dark mode, looks better, maybe remove this when using libadwaita
-    gtk::init().expect("Failed to initialize GTK");
-    if let Some(settings) = gtk::Settings::default() {
-        settings.set_property("gtk-application-prefer-dark-theme", true);
-    }
+    // gtk::init().expect("Failed to initialize GTK");
+    // if let Some(settings) = gtk::Settings::default() {
+    //     settings.set_property("gtk-application-prefer-dark-theme", true);
+    // }
 
     // Create a new application
     let app = Application::builder().application_id(APP_ID).build();
