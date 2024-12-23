@@ -21,12 +21,6 @@ use std::rc::Rc;
 const APP_ID: &str = "org.gtk_rs.Cliquemark";
 
 fn main() -> glib::ExitCode {
-    // Force dark mode, looks better, maybe remove this when using libadwaita
-    // gtk::init().expect("Failed to initialize GTK");
-    // if let Some(settings) = gtk::Settings::default() {
-    //     settings.set_property("gtk-application-prefer-dark-theme", true);
-    // }
-
     // Create a new application
     let app = Application::builder().application_id(APP_ID).build();
 
@@ -52,7 +46,7 @@ fn build_ui(app: &Application) {
         .child(&master_box)
         .build()
     );
-    // main_window.set_size_request(750, -1);
+    main_window.set_size_request(1000, 600);
 
     // settings container 
     let settings_box = Box::builder()
