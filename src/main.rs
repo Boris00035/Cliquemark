@@ -1,4 +1,4 @@
-use gtk::prelude::*;
+use adw::prelude::*;
 use adw::Application;
 use gtk::{
     glib, 
