@@ -3,7 +3,6 @@ use adw::Application;
 use gtk::{
     glib, 
     Align, 
-    // Application, 
     ApplicationWindow, 
     Box, 
     Orientation, 
@@ -14,7 +13,11 @@ use gtk::{
     Separator,
     FileDialog,
     Grid,
-    Label
+    Label,
+    ScrolledWindow,
+    Image,
+    Overlay,
+    gdk::Rectangle
     };
 use std::rc::Rc;
 
@@ -31,7 +34,6 @@ fn main() -> glib::ExitCode {
     app.run()
 }
 
-
 fn build_ui(app: &Application) {
     // master container
     let master_box = Box::builder()
@@ -46,7 +48,7 @@ fn build_ui(app: &Application) {
         .child(&master_box)
         .build()
     );
-    main_window.set_size_request(1000, 600);
+    main_window.set_size_request(1100, 600);
 
     // settings container 
     let settings_box = Box::builder()
@@ -58,16 +60,15 @@ fn build_ui(app: &Application) {
         .orientation(Orientation::Vertical)
         .spacing(12)
         .build();
+    settings_box.set_hexpand(false);
 
     master_box.append(&settings_box);
     
     let selection_button_grid = Grid::builder()
     .valign(Align::Center)
-    .halign(Align::Center)
     .build();
     selection_button_grid.set_row_spacing(12);
-    selection_button_grid.set_column_spacing(12);
-    
+    selection_button_grid.set_column_spacing(12);    
     settings_box.append(&selection_button_grid);
 
     // folder directory chooser
@@ -76,66 +77,34 @@ fn build_ui(app: &Application) {
         .build();
 
     let chosen_folder_text = Rc::new(Label::builder()
+        .hexpand(true)
         .label("Nothing chosen")
         .build()
     );
+    let folder_scrolled_container = ScrolledWindow::builder()
+        .build();
+
+    // Add the TextView to the ScrolledWindow
+    folder_scrolled_container.set_child(Some(&*chosen_folder_text));
+
     selection_button_grid.attach(&choose_folder_button, 0, 0, 1, 1);
-    selection_button_grid.attach(&*chosen_folder_text, 1,0,1,1);
-
-    choose_folder_button.connect_clicked({
-        let main_window = Rc::clone(&main_window);
-        move |_| {
-            let folder_dialog = FileDialog::builder()
-            .title("Select Folder")
-            .build();
-
-            let chosen_folder_text = Rc::clone(&chosen_folder_text);
-            folder_dialog.select_folder(Some(&*main_window),None::<&gtk::gio::Cancellable>, move |result| {
-                match result {
-                    Ok(folder) => {
-                        chosen_folder_text.set_text(&folder.path().unwrap().file_name().unwrap().to_str().unwrap());
-                    }
-                    Err(error) => {
-                        println!("Error: {}", error);
-                    }
-                }
-            });
-        }
-    });
+    selection_button_grid.attach(&folder_scrolled_container, 1,0,1,1);
 
     // watermark chooser
-    let choose_watermark = Button::builder()
+    let choose_watermark_button = Button::builder()
         .label("Select Watermark")
         .build();
     
     let chosen_watermark_text = Rc::new(Label::builder()
-    .label("Nothing chosen")
-    .build()
+        .label("Nothing chosen")
+        .build()
     );
-    selection_button_grid.attach(&choose_watermark, 0, 1, 1, 1);
-    selection_button_grid.attach(&*chosen_watermark_text, 1,1,1,1);
+    let watermark_scrolled_container = ScrolledWindow::builder()
+        .build();
+    watermark_scrolled_container.set_child(Some(&*chosen_watermark_text));
+    selection_button_grid.attach(&choose_watermark_button, 0, 1, 1, 1);
+    selection_button_grid.attach(&watermark_scrolled_container, 1,1,1,1);
 
-
-    choose_watermark.connect_clicked({
-        let main_window = Rc::clone(&main_window);
-        move |_| {
-            let file_dialog = FileDialog::builder()
-            .title("Select Watermark")
-            .build();
-
-            let chosen_watermark_text: Rc<Label> = Rc::clone(&chosen_watermark_text);            
-            file_dialog.open(Some(&*main_window),None::<&gtk::gio::Cancellable>, move |result| {
-                match result {
-                    Ok(file) => {
-                        chosen_watermark_text.set_text(&file.path().unwrap().file_name().unwrap().to_str().unwrap());
-                    }
-                    Err(error) => {
-                        println!("Error: {}", error);
-                    }
-                }
-            });
-        }
-    });
 
     // Alignment check boxes
     let top_left_check_box = CheckButton::builder()
@@ -196,10 +165,96 @@ fn build_ui(app: &Application) {
     let vertical_seperator = Separator::new(Orientation::Vertical);
     master_box.append(&vertical_seperator);
 
-   
-    // master_box.append(&result_preview);
+    let preview_side_box = Box::builder()
+        .margin_end(50)
+        .orientation(Orientation::Vertical)
+        .hexpand(true)
+        .vexpand(true)
+        .build();
+    master_box.append(&preview_side_box);
+
+    let preview_container = Overlay::builder()
+        .hexpand(true)
+        .vexpand(true)
+        .build();
+    preview_side_box.append(&preview_container);
+    
+    let image_preview = Rc::new(Image::builder()
+        .build()
+    );
+
+    let watermark_preview = Rc::new(Image::builder()
+        .build()
+    );
+    
+    preview_container.set_child(Some(&*image_preview));
+    preview_container.add_overlay(&*watermark_preview);
+
+    preview_container.connect_get_child_position(|_, _watermark_preview| {
+            let x = 0;
+            let y = 0;
+            let width = 200;
+            let height = 200;
+
+            return Some(Rectangle::new(x, y, width, height));
+    });
 
 
+
+    choose_folder_button.connect_clicked({
+        let main_window = Rc::clone(&main_window);
+        move |_| {
+            let folder_dialog = FileDialog::builder()
+            .title("Select Folder")
+            .build();
+
+            let chosen_folder_text = Rc::clone(&chosen_folder_text);
+            let image_preview = Rc::clone(&image_preview);
+            
+            folder_dialog.select_folder(Some(&*main_window),None::<&gtk::gio::Cancellable>, 
+            move |result| {
+                match result {
+                    Ok(folder) => {
+                        let folder_path = &folder.path().unwrap();
+                        chosen_folder_text.set_text(folder_path.to_str().unwrap());
+                        
+                        let preview_file_entry = std::fs::read_dir(folder_path).unwrap().next().unwrap().unwrap();
+                        
+                        image_preview.set_from_file(Some(&preview_file_entry.path()));
+                    }
+                    Err(error) => {
+                        println!("Error: {}", error);
+                    }
+                }
+            });
+        }
+    });
+
+    choose_watermark_button.connect_clicked({
+        let main_window = Rc::clone(&main_window);
+        move |_| {
+            let file_dialog = FileDialog::builder()
+            .title("Select Watermark")
+            .build();
+
+            let chosen_watermark_text: Rc<Label> = Rc::clone(&chosen_watermark_text); 
+            let watermark_preview = Rc::clone(&watermark_preview);            
+            file_dialog.open(Some(&*main_window),None::<&gtk::gio::Cancellable>, move |result| {
+                match result {
+                    Ok(file) => {
+                        let file_path = &file.path().unwrap();
+                        chosen_watermark_text.set_text(&file_path.file_name().unwrap().to_str().unwrap());
+                        
+                        watermark_preview.set_from_file(Some( &file_path));
+                    }
+                    Err(error) => {
+                        println!("Error: {}", error);
+                    }
+                }
+            });
+        }
+    });
+    
     // Present window
     main_window.present();
 }
