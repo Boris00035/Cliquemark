@@ -20,6 +20,7 @@ use gtk::{
     Picture,
     gio::File,
     AspectFrame,
+    ContentFit
     };
 use std::rc::Rc;
 
@@ -182,38 +183,20 @@ fn build_ui(app: &Application) {
     master_box.append(&preview_side_box);
 
     let preview_widget = Overlay::builder()
-        .halign(Align::Fill)
-        .valign(Align::Fill)
         .build();
     preview_side_box.append(&preview_widget);
-    
-    let aspect_frame = AspectFrame::builder()
-        .halign(Align::Fill)
-        .valign(Align::Fill)
-        .hexpand(true)
-        .vexpand(true)
-        // .xalign(0.5)
-        // .yalign(0.5)
-        .obey_child(true)
-        .build();
 
     let image_preview = Rc::new(Picture::builder()
-        // .content_fit(ContentFit::ScaleDown)
-        // .halign(Align::Fill)
-        // .valign(Align::Fill)
-        // .hexpand(false)
-        // .vexpand(false)
-        // .can_shrink(false)
         .build()
     );
-    aspect_frame.set_child(Some(&*image_preview));
+    preview_widget.set_child(Some(&*image_preview));
 
     let watermark_preview = Rc::new(Picture::builder()
         // .content_fit(ContentFit::Contain)
         .build()
     );
     
-    preview_widget.set_child(Some(&aspect_frame));
+    // preview_widget.set_child(Some(&aspect_frame));
     preview_widget.add_overlay(&*watermark_preview);
 
     preview_widget.connect_get_child_position(|_, _watermark_preview| {
