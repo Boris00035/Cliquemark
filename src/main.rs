@@ -15,9 +15,11 @@ use gtk::{
     Grid,
     Label,
     ScrolledWindow,
-    Image,
     Overlay,
-    gdk::Rectangle
+    gdk::Rectangle,
+    Picture,
+    gio::File,
+    AspectFrame,
     };
 use std::rc::Rc;
 
@@ -38,7 +40,7 @@ fn build_ui(app: &Application) {
     // master container
     let master_box = Box::builder()
         .orientation(Orientation::Horizontal)
-        .spacing(50)
+        // .spacing(50)
         .build();
 
     // Create a window
@@ -55,6 +57,7 @@ fn build_ui(app: &Application) {
         .margin_start(50)
         .margin_bottom(50)
         .margin_top(50)
+        .margin_end(50)
         .valign(Align::Center)
         .halign(Align::Center)
         .orientation(Orientation::Vertical)
@@ -166,31 +169,54 @@ fn build_ui(app: &Application) {
     master_box.append(&vertical_seperator);
 
     let preview_side_box = Box::builder()
+        .margin_start(50)
         .margin_end(50)
+        .margin_top(50)
+        .margin_bottom(50)
         .orientation(Orientation::Vertical)
+        .halign(Align::Center)
+        .valign(Align::Center)
         .hexpand(true)
         .vexpand(true)
         .build();
     master_box.append(&preview_side_box);
 
-    let preview_container = Overlay::builder()
+    let preview_widget = Overlay::builder()
+        .halign(Align::Fill)
+        .valign(Align::Fill)
+        .build();
+    preview_side_box.append(&preview_widget);
+    
+    let aspect_frame = AspectFrame::builder()
+        .halign(Align::Fill)
+        .valign(Align::Fill)
         .hexpand(true)
         .vexpand(true)
+        // .xalign(0.5)
+        // .yalign(0.5)
+        .obey_child(true)
         .build();
-    preview_side_box.append(&preview_container);
-    
-    let image_preview = Rc::new(Image::builder()
+
+    let image_preview = Rc::new(Picture::builder()
+        // .content_fit(ContentFit::ScaleDown)
+        // .halign(Align::Fill)
+        // .valign(Align::Fill)
+        // .hexpand(false)
+        // .vexpand(false)
+        // .can_shrink(false)
         .build()
     );
+    aspect_frame.set_child(Some(&*image_preview));
 
-    let watermark_preview = Rc::new(Image::builder()
+    let watermark_preview = Rc::new(Picture::builder()
+        // .content_fit(ContentFit::Contain)
         .build()
     );
     
-    preview_container.set_child(Some(&*image_preview));
-    preview_container.add_overlay(&*watermark_preview);
+    preview_widget.set_child(Some(&aspect_frame));
+    preview_widget.add_overlay(&*watermark_preview);
 
-    preview_container.connect_get_child_position(|_, _watermark_preview| {
+    preview_widget.connect_get_child_position(|_, _watermark_preview| {
             let x = 0;
             let y = 0;
             let width = 200;
@@ -218,9 +244,8 @@ fn build_ui(app: &Application) {
                         let folder_path = &folder.path().unwrap();
                         chosen_folder_text.set_text(folder_path.to_str().unwrap());
                         
-                        let preview_file_entry = std::fs::read_dir(folder_path).unwrap().next().unwrap().unwrap();
-                        
-                        image_preview.set_from_file(Some(&preview_file_entry.path()));
+                        let preview_file_entry = std::fs::read_dir(folder_path).unwrap().next().unwrap().unwrap();                        
+                        image_preview.set_file(Some(&File::for_path( &preview_file_entry.path() )));
                     }
                     Err(error) => {
                         println!("Error: {}", error);
@@ -244,8 +269,7 @@ fn build_ui(app: &Application) {
                     Ok(file) => {
                         let file_path = &file.path().unwrap();
                         chosen_watermark_text.set_text(&file_path.file_name().unwrap().to_str().unwrap());
-                        
-                        watermark_preview.set_from_file(Some( &file_path));
+                        watermark_preview.set_file( Some(&File::for_path(&file_path)) );
                     }
                     Err(error) => {
                         println!("Error: {}", error);
