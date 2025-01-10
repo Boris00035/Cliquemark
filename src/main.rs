@@ -19,8 +19,6 @@ use gtk::{
     gdk::Rectangle,
     Picture,
     gio::File,
-    AspectFrame,
-    ContentFit
     };
 use std::rc::Rc;
 
