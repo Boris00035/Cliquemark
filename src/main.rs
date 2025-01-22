@@ -174,7 +174,8 @@ fn build_ui(app: &Application) {
         .margin_bottom(50)
         .orientation(Orientation::Vertical)
         .halign(Align::Center)
-        .valign(Align::Center)
+        .valign(Align::Fill
+        )
         .hexpand(true)
         .vexpand(true)
         .build();
