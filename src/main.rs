@@ -219,7 +219,7 @@ fn build_ui(app: &Application) {
 
     choose_folder_button.connect_clicked({
         let main_window = Rc::clone(&main_window);
-        let image_preview = Rc::clone(&image_preview);
+        // let image_preview = Rc::clone(&image_preview);
         move |_| {
             let folder_dialog = FileDialog::builder()
             .title("Select Folder")
