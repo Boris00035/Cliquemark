@@ -206,7 +206,7 @@ fn build_ui(app: &Application) {
     // preview_widget.set_child(Some(&aspect_frame));
     preview_widget.add_overlay(&*watermark_preview);
 
-    preview_widget.connect_get_child_position(move |_, _watermark_preview| {
+    preview_widget.connect_get_child_position(|_, _watermark_preview| {
             // println!("{:?}", Picture::file(&image_preview).unwrap());
             // println!("{:?}", Picture::file(&image_preview).unwrap());
 
