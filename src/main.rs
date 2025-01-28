@@ -27,12 +27,12 @@ const APP_ID: &str = "org.gtk_rs.Cliquemark";
 fn main() -> glib::ExitCode {
     // Create a new application
     let app = Application::builder().application_id(APP_ID).build();
-
+    
     // Connect to "activate" signal of `app`
     app.connect_activate(build_ui);
 
     // Run the application
-    app.run()
+    return app.run();
 }
 
 fn build_ui(app: &Application) {
@@ -174,15 +174,24 @@ fn build_ui(app: &Application) {
         .margin_bottom(50)
         .orientation(Orientation::Vertical)
         .halign(Align::Center)
-        .valign(Align::Center)
+        .valign(Align::Fill)
         .hexpand(true)
         .vexpand(true)
         .build();
     master_box.append(&preview_side_box);
+    
+    let preview_side_sub_box = Box::builder()
+        .orientation(Orientation::Vertical)
+        .halign(Align::Fill)
+        .valign(Align::Center)
+        .hexpand(true)
+        .vexpand(true)
+        .build();
+    preview_side_box.append(&preview_side_sub_box);
 
     let preview_widget = Overlay::builder()
         .build();
-    preview_side_box.append(&preview_widget);
+    preview_side_sub_box.append(&preview_widget);
 
     let image_preview = Rc::new(Picture::builder()
         .build()
@@ -197,19 +206,20 @@ fn build_ui(app: &Application) {
     // preview_widget.set_child(Some(&aspect_frame));
     preview_widget.add_overlay(&*watermark_preview);
 
-    preview_widget.connect_get_child_position(|_, _watermark_preview| {
+    preview_widget.connect_get_child_position(move |_, _watermark_preview| {
+            // println!("{:?}", Picture::file(&image_preview).unwrap());
+            // println!("{:?}", Picture::file(&image_preview).unwrap());
+
             let x = 0;
             let y = 0;
             let width = 200;
             let height = 200;
-
             return Some(Rectangle::new(x, y, width, height));
     });
 
-
-
     choose_folder_button.connect_clicked({
         let main_window = Rc::clone(&main_window);
+        let image_preview = Rc::clone(&image_preview);
         move |_| {
             let folder_dialog = FileDialog::builder()
             .title("Select Folder")
