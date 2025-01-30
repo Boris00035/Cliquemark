@@ -1,5 +1,6 @@
 use adw::prelude::*;
 use adw::Application;
+use gtk::graphene::Vec2;
 use gtk::{
     glib, 
     Align, 
@@ -19,15 +20,18 @@ use gtk::{
     gdk::Rectangle,
     Picture,
     gio::File,
+    gdk_pixbuf::Pixbuf,
     };
+
 use std::rc::Rc;
+use std::cell::RefCell;
 
 const APP_ID: &str = "org.gtk_rs.Cliquemark";
 
 fn main() -> glib::ExitCode {
     // Create a new application
     let app = Application::builder().application_id(APP_ID).build();
-    
+
     // Connect to "activate" signal of `app`
     app.connect_activate(build_ui);
 
@@ -206,37 +210,51 @@ fn build_ui(app: &Application) {
     // preview_widget.set_child(Some(&aspect_frame));
     preview_widget.add_overlay(&*watermark_preview);
 
-    preview_widget.connect_get_child_position(|_, _watermark_preview| {
-            // println!("{:?}", Picture::file(&image_preview).unwrap());
-            // println!("{:?}", Picture::file(&image_preview).unwrap());
+    let image_preview_clone = Rc::clone(&image_preview);
+    // let watermark_preview_clone = Rc::clone(&watermark_preview);
+    
+    let preview_image_dimensions: Rc<RefCell<[i32; 2]>> = Rc::new(RefCell::new([0, 0]));
+    let preview_image_dimensions_clone = Rc::clone(&preview_image_dimensions);
 
-            let x = 0;
-            let y = 0;
+    preview_widget.connect_get_child_position(move |_, _watermark_preview| {
+            Picture::file(&image_preview_clone);
+            // println!("{:?}", &preview_image_dimensions_clone.borrow());
+
+            let x = (preview_image_dimensions_clone.borrow()[0] as f64 / 2.0).round() as i32;
+            let y = (preview_image_dimensions_clone.borrow()[1] as f64 / 2.0).round() as i32;
             let width = 200;
             let height = 200;
             return Some(Rectangle::new(x, y, width, height));
-    });
-
+    });    
+    
     choose_folder_button.connect_clicked({
-        let main_window = Rc::clone(&main_window);
-        // let image_preview = Rc::clone(&image_preview);
+        let main_window_clone = Rc::clone(&main_window);
+        let preview_image_dimensions_clone = Rc::clone(&preview_image_dimensions);
+
         move |_| {
             let folder_dialog = FileDialog::builder()
             .title("Select Folder")
             .build();
 
-            let chosen_folder_text = Rc::clone(&chosen_folder_text);
-            let image_preview = Rc::clone(&image_preview);
-            
-            folder_dialog.select_folder(Some(&*main_window),None::<&gtk::gio::Cancellable>, 
+            let chosen_folder_text = Rc::clone(&chosen_folder_text);            
+            let image_preview_clone = Rc::clone(&image_preview);
+            let preview_image_dimensions_clone_clone = Rc::clone(&preview_image_dimensions_clone);
+
+            folder_dialog.select_folder(Some(&*main_window_clone),None::<&gtk::gio::Cancellable>, 
             move |result| {
                 match result {
                     Ok(folder) => {
                         let folder_path = &folder.path().unwrap();
                         chosen_folder_text.set_text(folder_path.to_str().unwrap());
                         
-                        let preview_file_entry = std::fs::read_dir(folder_path).unwrap().next().unwrap().unwrap();                        
-                        image_preview.set_file(Some(&File::for_path( &preview_file_entry.path() )));
+                        let preview_file_entry = std::fs::read_dir(folder_path).unwrap().next().unwrap().unwrap().path();
+                        let preview_file_pixbuf = Pixbuf::from_file(&preview_file_entry).unwrap();
+
+                        let mut dims = preview_image_dimensions_clone_clone.borrow_mut();
+                        dims[0] = preview_file_pixbuf.width(); 
+                        dims[1] = preview_file_pixbuf.height();  
+                        
+                        image_preview_clone.set_file(Some(&File::for_path( &preview_file_entry )));
                     }
                     Err(error) => {
                         println!("Error: {}", error);
