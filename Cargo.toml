@@ -6,9 +6,11 @@ edition = "2021"
 [dependencies]
 adw = { version = "0.7.1", package = "libadwaita", features = ["v1_5"] }
 cairo = "0.0.4"
+kamadak-exif = "0.6.1"
 gdk = "0.18.2"
 gdk-pixbuf-sys = "0.20.7"
 gtk = { version = "0.9.5", package = "gtk4", features = ["v4_16"] }
+rand = "0.9.0"
 
 [package.metadata.bundle]
 name = "Cliquemark"
