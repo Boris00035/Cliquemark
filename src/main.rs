@@ -22,6 +22,7 @@ use gtk::{
     gdk_pixbuf::{Pixbuf, PixbufRotation},
     SpinButton,
     gdk::Texture,
+    Stack,
     };
 
 use std::rc::Rc;
@@ -79,20 +80,35 @@ fn calculate_watermark_position(
 
 
 fn build_ui(app: &Application) {
+
     // master container
     let master_box = Box::builder()
         .orientation(Orientation::Horizontal)
         // .spacing(50)
         .build();
 
+    let loader_window_box = Box::builder()
+        .orientation(Orientation::Vertical)
+        .build();
+
+    let main_stack = Stack::builder()
+        .transition_type(gtk::StackTransitionType::Crossfade)
+        // .interpolate_size(true)
+        .vhomogeneous(true)
+        .hhomogeneous(true)
+        .build();   
+    main_stack.add_named(&master_box, Some("main_window"));
+    main_stack.add_named(&loader_window_box, Some("loader_window"));
+
     // Create a window
     let main_window = Rc::new(ApplicationWindow::builder()
         .application(app)
         .title("Cliquemark")
-        .child(&master_box)
+        .child(&main_stack)
         .build()
     );
     main_window.set_size_request(1100, 600);
+
 
     // settings container 
     let settings_box = Box::builder()
@@ -213,10 +229,6 @@ fn build_ui(app: &Application) {
         .halign(Align::Center)
         .label("Watermark")
         .build();
-
-    confirm_button.connect_clicked(|button| {
-        button.set_label("Hello World!");
-    });
 
     let margin_confirm_container = Box::builder()
         .orientation(Orientation::Horizontal)
@@ -343,8 +355,7 @@ fn build_ui(app: &Application) {
             let _ = &preview_widget.queue_allocate();
         }
     });
-
-
+    
 
     choose_folder_button.connect_clicked({
         let main_window_clone = Rc::clone(&main_window);
@@ -455,15 +466,34 @@ fn build_ui(app: &Application) {
         }
     });
     
+
+    confirm_button.connect_clicked(move |_| {
+        
+        apply_watermark(&main_stack);
+    });
+
     // Present window
     main_window.present();
 }
+
+fn apply_watermark(main_stack: &Stack) {
+    // todo!();
+    let _ = &main_stack.set_visible_child_full("loader_window", gtk::StackTransitionType::Crossfade);
+    // let _ = &main_stack.set_visible_child_full("main_window", gtk::StackTransitionType::Crossfade);
+}
+
 
 fn apply_exif_rotation(file_path: &std::path::Path, image_pixbuf: Pixbuf) -> Pixbuf {
     let file = std::fs::File::open(file_path).unwrap();
         let mut bufreader = std::io::BufReader::new(&file);
         let exifreader = exif::Reader::new();
-        let exif = exifreader.read_from_container(&mut bufreader).unwrap();
+        let exif: exif::Exif = match exifreader.read_from_container(&mut bufreader) {
+            Ok(exif) => exif,
+            Err(e) => {
+                eprintln!("Failed to read EXIF data: {}", e);
+                return image_pixbuf;
+            }
+        };
     
         let image_orientation = match exif.get_field(exif::Tag::Orientation, exif::In::PRIMARY) {
             Some(orientation) =>
