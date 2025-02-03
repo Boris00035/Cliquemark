@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-adw = { version = "0.7.1", package = "libadwaita", features = ["v1_5"] }
+adw = { version = "0.7.1", package = "libadwaita", features = ["v1_7"] }
 cairo = "0.0.4"
 kamadak-exif = "0.6.1"
 gdk = "0.18.2"

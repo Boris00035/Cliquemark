@@ -1,28 +1,35 @@
-use adw::prelude::*;
-use adw::Application;
+use adw::{
+    prelude::*,
+    Application,
+    glib, 
+    ApplicationWindow, 
+    gdk::Rectangle,
+    gdk::Texture,
+    ToggleGroup,
+    Toggle,
+    HeaderBar,
+    // NavigationSplitView,
+    NavigationPage,
+    OverlaySplitView
+};
 
 use gtk::{
-    glib, 
     Align, 
-    ApplicationWindow, 
     Box, 
     Orientation, 
-    CheckButton,
     Button,
     Scale,
     Adjustment,
-    Separator,
     FileDialog,
     Grid,
     Label,
     ScrolledWindow,
     Overlay,
-    gdk::Rectangle,
     Picture,
     gdk_pixbuf::{Pixbuf, PixbufRotation},
     SpinButton,
-    gdk::Texture,
     Stack,
+    StackTransitionType,
     };
 
 use std::rc::Rc;
@@ -50,10 +57,7 @@ fn calculate_watermark_position(
     image_preview: &Rc<Picture>,
     scale_slider_value: &f64,
     margin_value: i32,
-    top_left_check_box: &Rc<CheckButton>,
-    top_right_check_box: &Rc<CheckButton>,
-    bottom_left_check_box: &Rc<CheckButton>,
-    bottom_right_check_box: &Rc<CheckButton>,
+    active_alignment_array: [i32; 4],
 ) -> Rectangle 
 {
     let mut width_ratio = 0.0;
@@ -67,10 +71,10 @@ fn calculate_watermark_position(
     let width = (width_ratio * image_preview.width() as f64 * scale_slider_value).ceil() as i32;
     let height = (height_ratio * image_preview.height() as f64 * scale_slider_value).ceil() as i32;
 
-    let x = (top_right_check_box.is_active() as i32 + bottom_right_check_box.is_active() as i32) * (image_preview.width() - width - margin_value)
-                + (top_left_check_box.is_active() as i32 + bottom_left_check_box.is_active() as i32) * margin_value;
-    let y = (bottom_left_check_box.is_active() as i32 + bottom_right_check_box.is_active() as i32) * (image_preview.height() - height - margin_value)
-                + (top_left_check_box.is_active() as i32 + top_right_check_box.is_active() as i32) * margin_value;
+    let x = (active_alignment_array[1] + active_alignment_array[3]) * (image_preview.width() - width - margin_value)
+                + (active_alignment_array[0] + active_alignment_array[2]) * margin_value;
+    let y = (active_alignment_array[2] + active_alignment_array[3]) * (image_preview.height() - height - margin_value)
+                + (active_alignment_array[0] + active_alignment_array[1]) * margin_value;
 
     // println!("{:?}, {:?}, {:?}, {:?}", image_preview.width(), image_preview.height(), width, height);
     
@@ -80,54 +84,71 @@ fn calculate_watermark_position(
 
 
 fn build_ui(app: &Application) {
-
-    // master container
-    let master_box = Box::builder()
-        .orientation(Orientation::Horizontal)
-        // .spacing(50)
+    let main_page_splitview = OverlaySplitView::builder()
+        .min_sidebar_width(450.0)
         .build();
 
-    let loader_window_box = Box::builder()
+    let loader_page_container = Box::builder()
         .orientation(Orientation::Vertical)
         .build();
 
     let main_stack = Stack::builder()
-        .transition_type(gtk::StackTransitionType::Crossfade)
+        .transition_type(StackTransitionType::Crossfade)
         // .interpolate_size(true)
         .vhomogeneous(true)
         .hhomogeneous(true)
         .build();   
-    main_stack.add_named(&master_box, Some("main_window"));
-    main_stack.add_named(&loader_window_box, Some("loader_window"));
+    main_stack.add_named(&main_page_splitview, Some("main_page"));
+    main_stack.add_named(&loader_page_container, Some("loader_page"));
 
     // Create a window
     let main_window = Rc::new(ApplicationWindow::builder()
         .application(app)
         .title("Cliquemark")
-        .child(&main_stack)
+        .content(&main_stack)
         .build()
     );
-    main_window.set_size_request(1100, 600);
+    // main_window.set_size_request(800, 200);
+    main_window.set_default_size(1000, 600);
 
+    let settings_header_container = Box::builder()
+        .orientation(Orientation::Vertical)
+        .vexpand(true)
+        .build();
+
+    let settings_header = HeaderBar::builder()
+        .margin_bottom(10)
+        .build();
+    settings_header.add_css_class("flat");
+    settings_header_container.append(&settings_header);
+    
+    let settings_box_container = Box::builder()
+        .vexpand(true)
+        .build();
+    settings_header_container.append(&settings_box_container);
 
     // settings container 
     let settings_box = Box::builder()
-        .margin_start(50)
-        .margin_bottom(50)
-        .margin_top(50)
-        .margin_end(50)
         .valign(Align::Center)
         .halign(Align::Center)
         .orientation(Orientation::Vertical)
         .spacing(12)
+        .margin_top(50)
+        .margin_bottom(50)
         .build();
-    settings_box.set_hexpand(false);
+    settings_box_container.append(&settings_box);
 
-    master_box.append(&settings_box);
+    let settings_sidebar = NavigationPage::builder()
+        .child(&settings_header_container)
+        .title("Settings")
+        .vexpand(true)
+        .build();
+    main_page_splitview.set_sidebar(Some(&settings_sidebar));
     
     let selection_button_grid = Grid::builder()
     .valign(Align::Center)
     .build();
+
     selection_button_grid.set_row_spacing(12);
     selection_button_grid.set_column_spacing(12);    
     settings_box.append(&selection_button_grid);
@@ -135,6 +156,8 @@ fn build_ui(app: &Application) {
     // folder directory chooser
     let choose_folder_button = Button::builder()
         .label("Select Folder")
+        .hexpand(false)
+        .vexpand(false)
         .build();
 
     let chosen_folder_text = Rc::new(Label::builder()
@@ -154,6 +177,8 @@ fn build_ui(app: &Application) {
     // watermark chooser
     let choose_watermark_button = Button::builder()
         .label("Select Watermark")
+        .hexpand(false)
+        .vexpand(false)
         .build();
     
     let chosen_watermark_text = Rc::new(Label::builder()
@@ -168,94 +193,120 @@ fn build_ui(app: &Application) {
 
 
     // Alignment check boxes
-    let top_left_check_box = Rc::new(CheckButton::builder()
+    let top_left_toggle = Toggle::builder()
         .label("Top left")
-        .build());
-    let top_right_check_box = Rc::new(CheckButton::builder()
-        .label("Top right")
-        .group(&*top_left_check_box)
-        .build());
-    let bottom_left_check_box = Rc::new(CheckButton::builder()
-        .label("Bottom left")
-        .group(&*top_left_check_box)
-        .build());
-    let bottom_right_check_box = Rc::new(CheckButton::builder()
-        .label("Bottom right")
-        .group(&*top_left_check_box)
-        .build());
-    top_left_check_box.set_active(true);
-
-    let alignment_check_box_container = Box::builder()
-        .valign(Align::Center)
-        .halign(Align::Center)
-        .orientation(Orientation::Horizontal)
         .build();
+    let top_right_toggle = Toggle::builder()
+        .label("Top right")
+        .build();
+    let bottom_left_toggle = Toggle::builder()
+        .label("Bottom left")
+        .build();
+    let bottom_right_toggle = Toggle::builder()
+        .label("Bottom right")
+        .build();
+    // top_left_toggle.set_child(true);
+    let alignment_toggle_group = ToggleGroup::builder()
+        .build();
+    alignment_toggle_group.add(top_left_toggle);
+    alignment_toggle_group.add(top_right_toggle);
+    alignment_toggle_group.add(bottom_left_toggle);
+    alignment_toggle_group.add(bottom_right_toggle);
+    settings_box.append(&alignment_toggle_group);
 
-    alignment_check_box_container.append(&*top_left_check_box);
-    alignment_check_box_container.append(&*top_right_check_box);
-    alignment_check_box_container.append(&*bottom_left_check_box);
-    alignment_check_box_container.append(&*bottom_right_check_box);
-    settings_box.append(&alignment_check_box_container);
-    
+
     // scale slider
-    let scale_adjustment = Adjustment::new(
-        1.0,
-        0.01, 
-        2.0,
-        0.01,
-        0.01,
-        0.01
-    ); 
+    let scale_label = Label::builder()
+        .label("Scale:")
+        .valign(Align::End)
+        .margin_bottom(8)
+        .build();
+    scale_label.add_css_class("dimmed");
+    let scale_adjustment = Adjustment::new(1.0,0.01, 2.0,0.01,0.01,0.01); 
     let scale_slider = Rc::new(Scale::builder()
         .digits(2)
+        .hexpand(true)
         .draw_value(true)
         .adjustment(&scale_adjustment)
         .build()
     );
-    settings_box.append(&*scale_slider);
 
+    let scale_container = Box::builder()
+        .orientation(Orientation::Horizontal)
+        .halign(Align::Fill)
+        .build();
+    scale_container.append(&scale_label);
+    scale_container.append(&*scale_slider);
+    settings_box.append(&scale_container);
+
+
+    let margin_label = Label::builder()
+        .label("Margin:")
+        .build();
+    margin_label.add_css_class("dimmed");
     let adjustment = Adjustment::new(0.0, 0.0, 100.0, 1.0, 10.0, 0.0);
     let margin_input = Rc::new(SpinButton::builder()
         .adjustment(&adjustment)
         .climb_rate(1.0)
         .digits(0)
-        .halign(Align::Center)
-        .margin_end(100)
+        .orientation(Orientation::Horizontal)
         .build()
     );
 
+    let margin_container = Box::builder()
+        .orientation(Orientation::Horizontal)
+        .halign(Align::Center)
+        .spacing(12)
+        .build();
+    margin_container.append(&margin_label);
+    margin_container.append(&*margin_input);
+    settings_box.append(&margin_container);
+
+    
     // confirm button
     let confirm_button = Button::builder()
         .halign(Align::Center)
         .label("Watermark")
+        .margin_top(50)
         .build();
+    confirm_button.add_css_class("suggested-action");
+    confirm_button.add_css_class("pill");
+    settings_box.append(&confirm_button);
 
-    let margin_confirm_container = Box::builder()
-        .orientation(Orientation::Horizontal)
-        .halign(Align::Center)
+
+    let preview_header = HeaderBar::builder()
+        .margin_bottom(10)
         .build();
+    preview_header.add_css_class("flat");
 
-    margin_confirm_container.append(&*margin_input);
-    margin_confirm_container.append(&confirm_button);
+    
+    let header_container = Box::builder()
+        // .hexpand(true)
+        // .vexpand(true)
+        .orientation(Orientation::Vertical)
+        .build(); 
+    header_container.append(&preview_header);
 
-    settings_box.append(&margin_confirm_container);
-
-    let vertical_seperator = Separator::new(Orientation::Vertical);
-    master_box.append(&vertical_seperator);
+    let preview_navigation_page = NavigationPage::builder()
+        .title("Preview")
+        .child(&header_container)
+        .build();
+    main_page_splitview.set_content(Some(&preview_navigation_page));
 
     let preview_side_box = Box::builder()
         .margin_start(50)
         .margin_end(50)
-        .margin_top(50)
+        // .margin_top(50)
         .margin_bottom(50)
+        .hexpand(true)
         .orientation(Orientation::Vertical)
         .halign(Align::Center)
         .valign(Align::Fill)
         .hexpand(true)
         .vexpand(true)
         .build();
-    master_box.append(&preview_side_box);
-    
+    header_container.append(&preview_side_box);  
+      
     let preview_side_sub_box = Box::builder()
         .orientation(Orientation::Vertical)
         .halign(Align::Fill)
@@ -283,6 +334,13 @@ fn build_ui(app: &Application) {
     // preview_widget.set_child(Some(&aspect_frame));
     preview_widget.add_overlay(&*watermark_preview);
     
+    alignment_toggle_group.connect_active_notify({
+        let preview_widget = Rc::clone(&preview_widget);
+        move |_| {
+            let _ = &preview_widget.queue_allocate();
+        }
+    });
+
     let preview_image_dimensions: Rc<RefCell<[i32; 2]>> = Rc::new(RefCell::new([0, 0]));
     let preview_watermark_dimensions: Rc<RefCell<[i32; 2]>> = Rc::new(RefCell::new([0, 0]));
 
@@ -294,53 +352,26 @@ fn build_ui(app: &Application) {
         let scale_slider = Rc::clone(&scale_slider);
         let margin_input = Rc::clone(&margin_input);
 
-        let top_left_check_box = Rc::clone(&top_left_check_box);
-        let top_right_check_box = Rc::clone(&top_right_check_box);
-        let bottom_left_check_box = Rc::clone(&bottom_left_check_box);
-        let bottom_right_check_box = Rc::clone(&bottom_right_check_box);
-
-
         move |_, _watermark_preview| {
+            let alignment_config_array: [i32; 4] = match alignment_toggle_group.active() {
+                0 => [1, 0, 0, 0],
+                1 => [0, 1, 0, 0],
+                2 => [0, 0, 1, 0],
+                3 => [0, 0, 0, 1],
+                _ => panic!("there are more alignment buttons then options implemented, this should not happen"),
+            };
+
             let watermark_rectangle = calculate_watermark_position(
                 &preview_image_dimensions,
                 &preview_watermark_dimensions,
                 &image_preview,
                 &scale_slider.value(),
                 margin_input.value() as i32,
-                &top_left_check_box,
-                &top_right_check_box,
-                &bottom_left_check_box,
-                &bottom_right_check_box,
+                alignment_config_array,
             );
             return Some(watermark_rectangle);
         }
     });    
-
-
-    top_left_check_box.connect_toggled( {
-        let preview_widget = Rc::clone(&preview_widget);   
-        move |_| {
-            let _ = &preview_widget.queue_allocate();
-        }
-    });    
-    top_right_check_box.connect_toggled({
-        let preview_widget = Rc::clone(&preview_widget);        
-        move |_| {
-            let _ = &preview_widget.queue_allocate();
-        }
-    });
-    bottom_left_check_box.connect_toggled({
-        let preview_widget = Rc::clone(&preview_widget);        
-        move |_| {
-            let _ = &preview_widget.queue_allocate();
-        }
-    });    
-    bottom_right_check_box.connect_toggled({
-        let preview_widget = Rc::clone(&preview_widget);        
-        move |_| {
-            let _ = &preview_widget.queue_allocate();
-        }
-    });
 
     scale_slider.connect_value_changed({
         let preview_widget = Rc::clone(&preview_widget);        
@@ -392,6 +423,8 @@ fn build_ui(app: &Application) {
                         
                         if entries.is_empty() {
                             println!("No image files found in the folder.");
+                            
+                            return;
                         }
 
                         let mut rng = rand::rng();
@@ -417,7 +450,7 @@ fn build_ui(app: &Application) {
                         image_preview.set_paintable( Some(&Texture::for_pixbuf(&preview_image_pixbuf)) );
                     }
                     Err(error) => {
-                        println!("Error: {}", error);
+                        println!("Folder picker failed: {}", error);
                     }
                 }
             });
@@ -478,7 +511,7 @@ fn build_ui(app: &Application) {
 
 fn apply_watermark(main_stack: &Stack) {
     // todo!();
-    let _ = &main_stack.set_visible_child_full("loader_window", gtk::StackTransitionType::Crossfade);
+    let _ = &main_stack.set_visible_child_full("loader_page", gtk::StackTransitionType::Crossfade);
     // let _ = &main_stack.set_visible_child_full("main_window", gtk::StackTransitionType::Crossfade);
 }
 
