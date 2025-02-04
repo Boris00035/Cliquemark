@@ -160,11 +160,12 @@ fn build_ui(app: &Application) {
     // folder directory chooser
     let choose_folder_button = Button::builder()
         .label("Select Folder")
-        .hexpand(false)
-        .vexpand(false)
-        .valign(Align::Center)
-        .halign(Align::Center)
+        // .hexpand(false)
+        // .vexpand(true)
+        .valign(Align::Fill)
+        .halign(Align::Fill)
         .build();
+    // choose_folder_button.add_css_class("suggested-action");
 
     let chosen_folder_text = Rc::new(Entry::builder()
         .hexpand(true)
@@ -188,11 +189,12 @@ fn build_ui(app: &Application) {
     // watermark chooser
     let choose_watermark_button = Button::builder()
         .label("Select Watermark")
-        .hexpand(false)
-        .vexpand(false)
-        .valign(Align::Center)
-        .halign(Align::Center)
+        // .hexpand(false)
+        // .vexpand(true)
+        .valign(Align::Fill)
+        .halign(Align::Fill)
         .build();
+    // choose_watermark_button.add_css_class("suggested-action");
     
     let chosen_watermark_text = Rc::new(Entry::builder()
         .hexpand(true)
@@ -209,29 +211,6 @@ fn build_ui(app: &Application) {
     watermark_scrolled_container.set_child(Some(&*chosen_watermark_text));
     selection_button_grid.attach(&choose_watermark_button, 0, 1, 1, 1);
     selection_button_grid.attach(&watermark_scrolled_container, 1,1,1,1);
-
-
-    // Alignment check boxes
-    let top_left_toggle = Toggle::builder()
-        .label("Top left")
-        .build();
-    let top_right_toggle = Toggle::builder()
-        .label("Top right")
-        .build();
-    let bottom_left_toggle = Toggle::builder()
-        .label("Bottom left")
-        .build();
-    let bottom_right_toggle = Toggle::builder()
-        .label("Bottom right")
-        .build();
-    // top_left_toggle.set_child(true);
-    let alignment_toggle_group = ToggleGroup::builder()
-        .build();
-    alignment_toggle_group.add(top_left_toggle);
-    alignment_toggle_group.add(top_right_toggle);
-    alignment_toggle_group.add(bottom_left_toggle);
-    alignment_toggle_group.add(bottom_right_toggle);
-    settings_box.append(&alignment_toggle_group);
 
 
     // scale slider
@@ -257,6 +236,30 @@ fn build_ui(app: &Application) {
     scale_container.append(&scale_label);
     scale_container.append(&*scale_slider);
     settings_box.append(&scale_container);
+
+
+    // Alignment check boxes
+    let top_left_toggle = Toggle::builder()
+        .label("Top left")
+        .build();
+    let top_right_toggle = Toggle::builder()
+        .label("Top right")
+        .build();
+    let bottom_left_toggle = Toggle::builder()
+        .label("Bottom left")
+        .build();
+    let bottom_right_toggle = Toggle::builder()
+        .label("Bottom right")
+        .build();
+    // top_left_toggle.set_child(true);
+    let alignment_toggle_group = ToggleGroup::builder()
+        .build();
+    alignment_toggle_group.add(top_left_toggle);
+    alignment_toggle_group.add(top_right_toggle);
+    alignment_toggle_group.add(bottom_left_toggle);
+    alignment_toggle_group.add(bottom_right_toggle);
+    alignment_toggle_group.set_active(3);
+    settings_box.append(&alignment_toggle_group);
 
 
     let margin_label = Label::builder()
