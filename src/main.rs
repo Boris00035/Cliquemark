@@ -150,6 +150,7 @@ fn build_ui(app: &Application) {
     // Get rid of this grid, replace with nested gtkBox
     let selection_button_grid = Grid::builder()
         // .valign(Align::Center)
+        .margin_bottom(20)
         .build();
     // selection_button_grid.add_css_class("linked");
 
@@ -289,7 +290,7 @@ fn build_ui(app: &Application) {
     let confirm_button = Button::builder()
         .halign(Align::Center)
         .label("Watermark")
-        .margin_top(50)
+        .margin_top(70)
         .build();
     confirm_button.add_css_class("suggested-action");
     confirm_button.add_css_class("pill");
