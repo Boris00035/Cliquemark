@@ -10,7 +10,7 @@ use adw::{
     HeaderBar,
     // NavigationSplitView,
     NavigationPage,
-    OverlaySplitView
+    OverlaySplitView,
 };
 
 use gtk::{
@@ -30,6 +30,8 @@ use gtk::{
     SpinButton,
     Stack,
     StackTransitionType,
+    Entry,
+    EntryBuffer,
     };
 
 use std::rc::Rc;
@@ -145,9 +147,11 @@ fn build_ui(app: &Application) {
         .build();
     main_page_splitview.set_sidebar(Some(&settings_sidebar));
     
+    // Get rid of this grid, replace with nested gtkBox
     let selection_button_grid = Grid::builder()
-    .valign(Align::Center)
-    .build();
+        // .valign(Align::Center)
+        .build();
+    // selection_button_grid.add_css_class("linked");
 
     selection_button_grid.set_row_spacing(12);
     selection_button_grid.set_column_spacing(12);    
@@ -158,13 +162,20 @@ fn build_ui(app: &Application) {
         .label("Select Folder")
         .hexpand(false)
         .vexpand(false)
+        .valign(Align::Center)
+        .halign(Align::Center)
         .build();
 
-    let chosen_folder_text = Rc::new(Label::builder()
+    let chosen_folder_text = Rc::new(Entry::builder()
         .hexpand(true)
-        .label("Nothing chosen")
+        .vexpand(false)
+        .editable(false)
+        .sensitive(false)
         .build()
     );
+    let default_entry_text = EntryBuffer::new(Some("Nothing chosen"));
+    chosen_folder_text.set_buffer(&default_entry_text);
+
     let folder_scrolled_container = ScrolledWindow::builder()
         .build();
 
@@ -179,12 +190,20 @@ fn build_ui(app: &Application) {
         .label("Select Watermark")
         .hexpand(false)
         .vexpand(false)
+        .valign(Align::Center)
+        .halign(Align::Center)
         .build();
     
-    let chosen_watermark_text = Rc::new(Label::builder()
-        .label("Nothing chosen")
+    let chosen_watermark_text = Rc::new(Entry::builder()
+        .hexpand(true)
+        .vexpand(false)
+        .editable(false)
+        .sensitive(false)
         .build()
     );
+    let default_watermark_text = EntryBuffer::new(Some("Nothing chosen"));
+    chosen_watermark_text.set_buffer(&default_watermark_text);
+
     let watermark_scrolled_container = ScrolledWindow::builder()
         .build();
     watermark_scrolled_container.set_child(Some(&*chosen_watermark_text));
@@ -464,7 +483,7 @@ fn build_ui(app: &Application) {
             .title("Select Watermark")
             .build();
 
-            let chosen_watermark_text: Rc<Label> = Rc::clone(&chosen_watermark_text); 
+            let chosen_watermark_text = Rc::clone(&chosen_watermark_text); 
             let watermark_preview = Rc::clone(&watermark_preview);   
             let preview_watermark_dimensions = Rc::clone(&preview_watermark_dimensions);
             let preview_widget = Rc::clone(&preview_widget);
