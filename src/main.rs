@@ -412,7 +412,7 @@ fn build_ui(app: &Application) {
     
 
     choose_folder_button.connect_clicked({
-        let main_window_clone = Rc::clone(&main_window);
+        let main_window = Rc::clone(&main_window);
         let preview_image_dimensions = Rc::clone(&preview_image_dimensions);
 
         move |_| {
@@ -424,7 +424,7 @@ fn build_ui(app: &Application) {
             let image_preview = Rc::clone(&image_preview);
             let preview_image_dimensions = Rc::clone(&preview_image_dimensions);
 
-            folder_dialog.select_folder(Some(&*main_window_clone),None::<&gtk::gio::Cancellable>, 
+            folder_dialog.select_folder(Some(&*main_window),None::<&gtk::gio::Cancellable>, 
             move |result| {
                 match result {
                     Ok(folder) => {
