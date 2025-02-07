@@ -1,3 +1,7 @@
+// Todo: 
+// watermark knop
+// remove explicit Rc's, as gtk implements that itself and can just do .clone()
+
 use adw::{
     prelude::*,
     Application,
@@ -11,6 +15,8 @@ use adw::{
     // NavigationSplitView,
     NavigationPage,
     OverlaySplitView,
+    PreferencesGroup,
+    ActionRow,
 };
 
 use gtk::{
@@ -32,6 +38,7 @@ use gtk::{
     StackTransitionType,
     Entry,
     EntryBuffer,
+    PositionType,
     };
 
 use std::rc::Rc;
@@ -150,7 +157,7 @@ fn build_ui(app: &Application) {
     // Get rid of this grid, replace with nested gtkBox
     let selection_button_grid = Grid::builder()
         // .valign(Align::Center)
-        .margin_bottom(20)
+        .margin_bottom(40)
         .build();
     // selection_button_grid.add_css_class("linked");
 
@@ -214,31 +221,6 @@ fn build_ui(app: &Application) {
     selection_button_grid.attach(&watermark_scrolled_container, 1,1,1,1);
 
 
-    // scale slider
-    let scale_label = Label::builder()
-        .label("Scale:")
-        .valign(Align::End)
-        .margin_bottom(8)
-        .build();
-    scale_label.add_css_class("dimmed");
-    let scale_adjustment = Adjustment::new(1.0,0.01, 2.0,0.01,0.01,0.01); 
-    let scale_slider = Rc::new(Scale::builder()
-        .digits(2)
-        .hexpand(true)
-        .draw_value(true)
-        .adjustment(&scale_adjustment)
-        .build()
-    );
-
-    let scale_container = Box::builder()
-        .orientation(Orientation::Horizontal)
-        .halign(Align::Fill)
-        .build();
-    scale_container.append(&scale_label);
-    scale_container.append(&*scale_slider);
-    settings_box.append(&scale_container);
-
-
     // Alignment check boxes
     let top_left_toggle = Toggle::builder()
         .label("Top left")
@@ -254,13 +236,41 @@ fn build_ui(app: &Application) {
         .build();
     // top_left_toggle.set_child(true);
     let alignment_toggle_group = ToggleGroup::builder()
+        .valign(Align::Center)
         .build();
     alignment_toggle_group.add(top_left_toggle);
     alignment_toggle_group.add(top_right_toggle);
     alignment_toggle_group.add(bottom_left_toggle);
     alignment_toggle_group.add(bottom_right_toggle);
     alignment_toggle_group.set_active(3);
+    
     settings_box.append(&alignment_toggle_group);
+
+
+    let image_configs_container = PreferencesGroup::builder()
+    // .can_focus(false)
+    .build();
+    settings_box.append(&image_configs_container);
+
+
+    // scale slider
+    let scale_adjustment = Adjustment::new(1.0,0.01, 2.0,0.01,0.01,0.01); 
+    let scale_slider = Rc::new(Scale::builder()
+        .digits(2)
+        .hexpand(true)
+        .draw_value(true)
+        .adjustment(&scale_adjustment)
+        // .margin_bottom(15)    
+        .width_request(250)
+        .value_pos(PositionType::Right)
+        .build()
+    );
+
+    let settings_action_row = ActionRow::builder()
+        .title("Scale:")
+        .build();
+    settings_action_row.add_suffix(&*scale_slider);
+    image_configs_container.add(&settings_action_row);
 
 
     let margin_label = Label::builder()
@@ -273,17 +283,16 @@ fn build_ui(app: &Application) {
         .climb_rate(1.0)
         .digits(0)
         .orientation(Orientation::Horizontal)
+        .valign(Align::Center)
         .build()
     );
 
-    let margin_container = Box::builder()
-        .orientation(Orientation::Horizontal)
-        .halign(Align::Center)
-        .spacing(12)
+
+    let margin_action_row = ActionRow::builder()
+        .title("Margin:")
         .build();
-    margin_container.append(&margin_label);
-    margin_container.append(&*margin_input);
-    settings_box.append(&margin_container);
+    margin_action_row.add_suffix(&*margin_input);
+    image_configs_container.add(&margin_action_row);
 
     
     // confirm button
