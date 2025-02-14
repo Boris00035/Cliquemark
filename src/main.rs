@@ -12,11 +12,11 @@ use adw::{
     ToggleGroup,
     Toggle,
     HeaderBar,
-    // NavigationSplitView,
     NavigationPage,
     OverlaySplitView,
     PreferencesGroup,
     ActionRow,
+    Spinner,
 };
 
 use gtk::{
@@ -39,6 +39,7 @@ use gtk::{
     Entry,
     EntryBuffer,
     PositionType,
+    ProgressBar,
     };
 
 use std::rc::Rc;
@@ -97,10 +98,6 @@ fn build_ui(app: &Application) {
         .min_sidebar_width(450.0)
         .build();
 
-    let loader_page_container = Box::builder()
-        .orientation(Orientation::Vertical)
-        .build();
-
     let main_stack = Stack::builder()
         .transition_type(StackTransitionType::Crossfade)
         // .interpolate_size(true)
@@ -108,7 +105,6 @@ fn build_ui(app: &Application) {
         .hhomogeneous(true)
         .build();   
     main_stack.add_named(&main_page_splitview, Some("main_page"));
-    main_stack.add_named(&loader_page_container, Some("loader_page"));
 
     // Create a window
     let main_window = Rc::new(ApplicationWindow::builder()
@@ -530,10 +526,26 @@ fn build_ui(app: &Application) {
             let _ = &preview_widget.queue_allocate();
         }
     });
+
+
+    let loader_page_container = Box::builder()
+        .orientation(Orientation::Vertical)
+        .valign(Align::Center)
+        .halign(Align::Center)
+        .build();
+    main_stack.add_named(&loader_page_container, Some("loader_page"));
+
+
+    let watermark_loading_spinner = Spinner::builder()
+        .build();
+    loader_page_container.append(&watermark_loading_spinner);
+
+    let watermark_loading_progress = ProgressBar::builder()
+        .build();
+    loader_page_container.append(&watermark_loading_progress);
     
 
     confirm_button.connect_clicked(move |_| {
-        
         apply_watermark(&main_stack);
     });
 
@@ -544,7 +556,7 @@ fn build_ui(app: &Application) {
 fn apply_watermark(main_stack: &Stack) {
     // todo!();
     let _ = &main_stack.set_visible_child_full("loader_page", gtk::StackTransitionType::Crossfade);
-    // let _ = &main_stack.set_visible_child_full("main_window", gtk::StackTransitionType::Crossfade);
+    // let _ = &main_stack.set_visible_child_full("main_page", gtk::StackTransitionType::Crossfade);
 }
 
 
