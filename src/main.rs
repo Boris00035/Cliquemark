@@ -17,6 +17,7 @@ use adw::{
     PreferencesGroup,
     ActionRow,
     Spinner,
+    SpinRow
 };
 
 use gtk::{
@@ -28,12 +29,10 @@ use gtk::{
     Adjustment,
     FileDialog,
     Grid,
-    Label,
     ScrolledWindow,
     Overlay,
     Picture,
     gdk_pixbuf::{Pixbuf, PixbufRotation},
-    SpinButton,
     Stack,
     StackTransitionType,
     Entry,
@@ -269,26 +268,31 @@ fn build_ui(app: &Application) {
     image_configs_container.add(&settings_action_row);
 
 
-    let margin_label = Label::builder()
-        .label("Margin:")
-        .build();
-    margin_label.add_css_class("dimmed");
-    let adjustment = Adjustment::new(0.0, 0.0, 100.0, 1.0, 10.0, 0.0);
-    let margin_input = Rc::new(SpinButton::builder()
-        .adjustment(&adjustment)
+    // let margin_label = Label::builder()
+    //     .label("Margin:")
+    //     .build();
+    // margin_label.add_css_class("dimmed");
+    // let margin_input = Rc::new(SpinButton::builder()
+    //     .adjustment(&adjustment)
+    //     .climb_rate(1.0)
+    //     .digits(0)
+    //     .orientation(Orientation::Horizontal)
+    //     .valign(Align::Center)
+    //     .build()
+    // );
+    // let margin_action_row = ActionRow::builder()
+    //     .title("Margin:")
+    //     .build();
+    // margin_action_row.add_suffix(&*margin_input);
+
+    let margin_adjustment = Adjustment::new(0.0, 0.0, 100.0, 1.0, 1.0, 0.0);
+    let margin_spin_row = Rc::new(SpinRow::builder()
+        .title("Margin:")
+        .adjustment(&margin_adjustment)
         .climb_rate(1.0)
-        .digits(0)
-        .orientation(Orientation::Horizontal)
-        .valign(Align::Center)
         .build()
     );
-
-
-    let margin_action_row = ActionRow::builder()
-        .title("Margin:")
-        .build();
-    margin_action_row.add_suffix(&*margin_input);
-    image_configs_container.add(&margin_action_row);
+    image_configs_container.add(&*margin_spin_row);
 
     
     // confirm button
@@ -378,7 +382,7 @@ fn build_ui(app: &Application) {
         let preview_watermark_dimensions = Rc::clone(&preview_watermark_dimensions);
         let image_preview = Rc::clone(&image_preview);
         let scale_slider = Rc::clone(&scale_slider);
-        let margin_input = Rc::clone(&margin_input);
+        let margin_input = Rc::clone(&margin_spin_row);
 
         move |_, _watermark_preview| {
             let alignment_config_array: [i32; 4] = match alignment_toggle_group.active() {
@@ -408,7 +412,7 @@ fn build_ui(app: &Application) {
         }
     });
 
-    margin_input.connect_value_changed({
+    margin_spin_row.connect_value_notify({
         let preview_widget = Rc::clone(&preview_widget);        
         move |_| {
             let _ = &preview_widget.queue_allocate();
