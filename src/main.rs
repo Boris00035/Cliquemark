@@ -41,6 +41,9 @@ use gtk::{
     ProgressBar,
     };
 
+
+use std::thread;
+use std::time::Duration;
 use std::rc::Rc;
 use std::cell::RefCell;
 use exif;
@@ -390,7 +393,7 @@ fn build_ui(app: &Application) {
                 1 => [0, 1, 0, 0],
                 2 => [0, 0, 1, 0],
                 3 => [0, 0, 0, 1],
-                _ => panic!("there are more alignment buttons then options implemented, this should not happen"),
+                _ => [0, 0, 0, 1],
             };
 
             let watermark_rectangle = calculate_watermark_position(
@@ -547,55 +550,78 @@ fn build_ui(app: &Application) {
     let watermark_loading_progress = ProgressBar::builder()
         .build();
     loader_page_container.append(&watermark_loading_progress);
+
+    let cancel_button = Button::builder()
+        .halign(Align::Center)
+        .label("Cancel")
+        .margin_top(70)
+        .build();
+    cancel_button.add_css_class("destructive-action");
+    cancel_button.add_css_class("pill");
+    loader_page_container.append(&cancel_button);
     
 
-    confirm_button.connect_clicked(move |_| {
-        apply_watermark(&main_stack);
+    confirm_button.connect_clicked(
+        {
+            let main_stack = main_stack.clone(); 
+            move |_| {
+            let _ = &main_stack.set_visible_child_full("loader_page", gtk::StackTransitionType::Crossfade);
+            apply_watermark();
+        }
+    });
+
+    cancel_button.connect_clicked(move |_| {
+        let _ = &main_stack.set_visible_child_full("main_page", gtk::StackTransitionType::Crossfade);
     });
 
     // Present window
     main_window.present();
 }
 
-fn apply_watermark(main_stack: &Stack) {
+fn apply_watermark() {
     // todo!();
-    let _ = &main_stack.set_visible_child_full("loader_page", gtk::StackTransitionType::Crossfade);
     // let _ = &main_stack.set_visible_child_full("main_page", gtk::StackTransitionType::Crossfade);
 }
 
 
 fn apply_exif_rotation(file_path: &std::path::Path, image_pixbuf: Pixbuf) -> Pixbuf {
     let file = std::fs::File::open(file_path).unwrap();
-        let mut bufreader = std::io::BufReader::new(&file);
-        let exifreader = exif::Reader::new();
-        let exif: exif::Exif = match exifreader.read_from_container(&mut bufreader) {
-            Ok(exif) => exif,
-            Err(e) => {
-                eprintln!("Failed to read EXIF data: {}", e);
-                return image_pixbuf;
-            }
-        };
+    let mut bufreader = std::io::BufReader::new(&file);
+    let exifreader = exif::Reader::new();
+    let exif: exif::Exif = match exifreader.read_from_container(&mut bufreader) {
+        Ok(exif) => exif,
+        Err(e) => {
+            eprintln!("Failed to read EXIF data: {}", e);
+            return image_pixbuf;
+        }
+    };
     
-        let image_orientation = match exif.get_field(exif::Tag::Orientation, exif::In::PRIMARY) {
-            Some(orientation) =>
-                match orientation.value.get_uint(0) {
-                    Some(v @ 1..=8) => v,
-                    _ => panic!("Orientation value is broken, file:{}", file_path.to_str().unwrap()),
+    let image_orientation = match exif.get_field(exif::Tag::Orientation, exif::In::PRIMARY) {
+        Some(orientation) =>
+            match orientation.value.get_uint(0) {
+                Some(v @ 1..=8) => v,
+                _ => {
+                    eprintln!("Exif orientation value is broken, file:{:?}", file_path.to_str().unwrap());
+                    1
                 },
-            Option::None => 1,
-        };
+            },
+        Option::None => 1,
+    };
 
-        let corrected_pixbuf = match image_orientation {
-            1 => Some(image_pixbuf),
-            2 => image_pixbuf.flip(true),
-            3 => image_pixbuf.rotate_simple(PixbufRotation::Upsidedown),
-            4 => image_pixbuf.flip(false),
-            5 => image_pixbuf.flip(true).unwrap().rotate_simple(PixbufRotation::Counterclockwise),
-            6 => image_pixbuf.rotate_simple(PixbufRotation::Clockwise),
-            7 => image_pixbuf.flip(true).unwrap().rotate_simple(PixbufRotation::Clockwise),
-            8 => image_pixbuf.rotate_simple(PixbufRotation::Counterclockwise),
-            _ => panic!{"Hier gaat iets heel goed mis in de match logica van de exif match"},
-        }.expect("Failed to apply exif transformation");
+    let corrected_pixbuf = match image_orientation {
+        1 => Some(image_pixbuf),
+        2 => image_pixbuf.flip(true),
+        3 => image_pixbuf.rotate_simple(PixbufRotation::Upsidedown),
+        4 => image_pixbuf.flip(false),
+        5 => image_pixbuf.flip(true).unwrap().rotate_simple(PixbufRotation::Counterclockwise),
+        6 => image_pixbuf.rotate_simple(PixbufRotation::Clockwise),
+        7 => image_pixbuf.flip(true).unwrap().rotate_simple(PixbufRotation::Clockwise),
+        8 => image_pixbuf.rotate_simple(PixbufRotation::Counterclockwise),
+        _ => {
+            eprintln!{"The exif orientation value of file \"{}\" has a value higher outside of 1-8, which is unexpected, no rotation applied", file_path.to_str().unwrap()};
+            Some(image_pixbuf)
+            },
+    }.expect("Failed to apply exif transformation");
 
     return corrected_pixbuf;
 }
