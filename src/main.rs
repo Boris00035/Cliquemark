@@ -5,7 +5,8 @@
 use adw::{
     prelude::*,
     Application,
-    glib, 
+    glib,
+    glib::GString, 
     ApplicationWindow, 
     gdk::Rectangle,
     gdk::Texture,
@@ -39,37 +40,38 @@ use gtk::{
     EntryBuffer,
     PositionType,
     ProgressBar,
+    gio,
     };
 
+use std::{
+    thread,
+    time::Duration,
+    rc::Rc,
+    cell::RefCell,
+    path::PathBuf,
+    fs::File,
+};
 
-use std::thread;
-use std::time::Duration;
-use std::rc::Rc;
-use std::cell::RefCell;
 use exif;
 use rand::prelude::IndexedRandom;
+
 
 
 const APP_ID: &str = "org.gtk_rs.Cliquemark";
 
 fn main() -> glib::ExitCode {
-    // Create a new application
     let app = Application::builder().application_id(APP_ID).build();
-
-    // Connect to "activate" signal of `app`
     app.connect_activate(build_ui);
-
-    // Run the application
     return app.run();
 }
 
 fn calculate_watermark_position(
-    preview_image_dimensions: &RefCell<[i32; 2]>,
-    preview_watermark_dimensions: &RefCell<[i32; 2]>,
-    image_preview: &Rc<Picture>,
-    scale_slider_value: &f64,
-    margin_value: i32,
-    active_alignment_array: [i32; 4],
+    preview_image_dimensions:       &RefCell<[i32; 2]>,
+    preview_watermark_dimensions:   &RefCell<[i32; 2]>,
+    image_preview:                  &Rc<Picture>,
+    scale_slider_value:             &f64,
+    margin_value:                   i32,
+    active_alignment_array:         [i32; 4],
 ) -> Rectangle 
 {
     let mut width_ratio = 0.0;
@@ -124,7 +126,7 @@ fn build_ui(app: &Application) {
         .build();
 
     let settings_header = HeaderBar::builder()
-        .margin_bottom(10)
+        // .margin_bottom(10)
         .build();
     settings_header.add_css_class("flat");
     settings_header_container.append(&settings_header);
@@ -310,7 +312,6 @@ fn build_ui(app: &Application) {
 
 
     let preview_header = HeaderBar::builder()
-        .margin_bottom(10)
         .build();
     preview_header.add_css_class("flat");
 
@@ -333,7 +334,6 @@ fn build_ui(app: &Application) {
         .margin_end(50)
         // .margin_top(50)
         .margin_bottom(50)
-        .hexpand(true)
         .orientation(Orientation::Vertical)
         .halign(Align::Center)
         .valign(Align::Fill)
@@ -352,6 +352,7 @@ fn build_ui(app: &Application) {
     preview_side_box.append(&preview_side_sub_box);
 
     let preview_widget = Rc::new(Overlay::builder()
+        .margin_top(10)
         .build()
     );
     preview_side_sub_box.append(&*preview_widget);
@@ -421,10 +422,60 @@ fn build_ui(app: &Application) {
             let _ = &preview_widget.queue_allocate();
         }
     });
+
+
+    let loader_header_container = Box::builder()
+        .orientation(Orientation::Vertical)
+        // .halign(Align::Center)
+        .build();
+
+    let loader_navigation_page = NavigationPage::builder()
+    .child(&loader_header_container)    
+    .build();
+
+    let loader_header = HeaderBar::builder()
+        .build();
+    loader_header.add_css_class("flat");
+    loader_header_container.append(&loader_header);
+
+    let loader_page_container = Box::builder()
+    .orientation(Orientation::Vertical)
+    .valign(Align::Center)
+    .halign(Align::Center)
+    .vexpand(true)
+    .build();
+    loader_header_container.append(&loader_page_container);
+    
+    main_stack.add_named(&loader_navigation_page, Some("loader_page"));
+
+    let watermark_loading_spinner = Spinner::builder()
+        .height_request(50)
+        .build();
+    loader_page_container.append(&watermark_loading_spinner);
+
+    let watermark_progress_bar = Rc::new(ProgressBar::builder()
+        .width_request(300)
+        .margin_top(30)
+        .build()
+    );
+    loader_page_container.append(&*watermark_progress_bar);
+
+    // let cancel_button = Button::builder()
+    //     .halign(Align::Center)
+    //     .label("Cancel")
+    //     .margin_top(70)
+    //     .build();
+    // cancel_button.add_css_class("destructive-action");
+    // cancel_button.add_css_class("pill");
+    // loader_page_container.append(&cancel_button);
+
     
 
     choose_folder_button.connect_clicked({
         let main_window = Rc::clone(&main_window);
+        let watermark_progress_bar = Rc::clone(&watermark_progress_bar);
+        let chosen_folder_text= Rc::clone(&chosen_folder_text);
+
         let preview_image_dimensions = Rc::clone(&preview_image_dimensions);
 
         move |_| {
@@ -434,60 +485,73 @@ fn build_ui(app: &Application) {
 
             let chosen_folder_text = Rc::clone(&chosen_folder_text);            
             let image_preview = Rc::clone(&image_preview);
+            let watermark_progress_bar = Rc::clone(&watermark_progress_bar);
             let preview_image_dimensions = Rc::clone(&preview_image_dimensions);
 
             folder_dialog.select_folder(Some(&*main_window),None::<&gtk::gio::Cancellable>, 
             move |result| {
-                match result {
-                    Ok(folder) => {
-                        let folder_path = &folder.path().unwrap();
-                        chosen_folder_text.set_text(folder_path.to_str().unwrap());
-                        
-                        let random_preview_entry;
-                        let entries = std::fs::read_dir(folder_path).unwrap()
-                        .filter_map(|entry| {
-                            let entry = entry.ok()?;
-                            let path = entry.path();
-                            if is_image_file(&path) {
-                                Some(path)
-                            } else {
-                                None
-                            }
-                        })
-                        .collect::<Vec<_>>();
-                        
-                        if entries.is_empty() {
-                            println!("No image files found in the folder.");
-                            
-                            return;
-                        }
-
-                        let mut rng = rand::rng();
-                        if let Some(random_image) = entries.choose(&mut rng) {
-                            random_preview_entry = random_image;
-                        } else {
-                            todo!();
-                        };
-                        
-                        let mut preview_image_pixbuf = Pixbuf::from_file(&random_preview_entry).unwrap();
-
-                        preview_image_pixbuf = match random_preview_entry.extension().and_then(|ext| ext.to_str()) {
-                            Some("png") => preview_image_pixbuf,
-                            Some("PNG") => preview_image_pixbuf,
-                            _ => apply_exif_rotation(random_preview_entry, preview_image_pixbuf),
-                        };
-
-                        let mut image_preview_dims = preview_image_dimensions.borrow_mut();
-
-                        image_preview_dims[0] = preview_image_pixbuf.width(); 
-                        image_preview_dims[1] = preview_image_pixbuf.height();  
-                        
-                        image_preview.set_paintable( Some(&Texture::for_pixbuf(&preview_image_pixbuf)) );
-                    }
-                    Err(error) => {
-                        println!("Folder picker failed: {}", error);
-                    }
+                
+                let mut folder_path: PathBuf;
+                if let Ok(path) = result {
+                    folder_path = path.path().unwrap();
+                } else {
+                    return;
                 }
+                
+                // let folder_path = match result {
+                //     Ok(folder) => {
+                //         &folder.path().unwrap();
+                //     }
+                //     Err(error) => {
+                //         println!("Folder picker failed: {}", error);
+                //         return;
+                //     }
+                // };  
+    
+                chosen_folder_text.set_text(folder_path.to_str().unwrap());
+                
+                let random_preview_entry;
+                let entries = std::fs::read_dir(folder_path).unwrap()
+                .filter_map(|entry| {
+                    let entry = entry.ok()?;
+                    let path = entry.path();
+                    if is_image_file(&path) {
+                        Some(path)
+                    } else {
+                        None
+                    }
+                })
+                .collect::<Vec<_>>();
+                
+                if entries.is_empty() {
+                    println!("No image files found in the folder.");
+                    return;
+                }
+
+                watermark_progress_bar.set_pulse_step(1.0 / entries.len() as f64);
+
+                let mut rng = rand::rng();
+                if let Some(random_image) = entries.choose(&mut rng) {
+                    random_preview_entry = random_image;
+                } else {
+                    todo!();
+                };
+                
+                let mut preview_image_pixbuf = Pixbuf::from_file(&random_preview_entry).unwrap();
+
+                preview_image_pixbuf = match random_preview_entry.extension().and_then(|ext| ext.to_str()) {
+                    Some("png") => preview_image_pixbuf,
+                    Some("PNG") => preview_image_pixbuf,
+                    _ => apply_exif_rotation(random_preview_entry, preview_image_pixbuf),
+                };
+
+                let mut image_preview_dims = preview_image_dimensions.borrow_mut();
+
+                image_preview_dims[0] = preview_image_pixbuf.width(); 
+                image_preview_dims[1] = preview_image_pixbuf.height();  
+                
+                image_preview.set_paintable( Some(&Texture::for_pixbuf(&preview_image_pixbuf)) );
+                  
             });
         }
     });
@@ -534,58 +598,101 @@ fn build_ui(app: &Application) {
         }
     });
 
-
-    let loader_page_container = Box::builder()
-        .orientation(Orientation::Vertical)
-        .valign(Align::Center)
-        .halign(Align::Center)
-        .build();
-    main_stack.add_named(&loader_page_container, Some("loader_page"));
-
-
-    let watermark_loading_spinner = Spinner::builder()
-        .build();
-    loader_page_container.append(&watermark_loading_spinner);
-
-    let watermark_loading_progress = ProgressBar::builder()
-        .build();
-    loader_page_container.append(&watermark_loading_progress);
-
-    let cancel_button = Button::builder()
-        .halign(Align::Center)
-        .label("Cancel")
-        .margin_top(70)
-        .build();
-    cancel_button.add_css_class("destructive-action");
-    cancel_button.add_css_class("pill");
-    loader_page_container.append(&cancel_button);
     
+    let (watermarking_state_sender, watermarking_state_receiver) = async_channel::bounded(1);
+    let (progress_sender, progress_receiver) = async_channel::bounded(1);
 
     confirm_button.connect_clicked(
         {
-            let main_stack = main_stack.clone(); 
+            let main_stack = main_stack.clone();
             move |_| {
-            let _ = &main_stack.set_visible_child_full("loader_page", gtk::StackTransitionType::Crossfade);
-            apply_watermark();
+                let watermarking_state_sender = watermarking_state_sender.clone();
+                let progress_sender = progress_sender.clone();
+
+                let chosen_folder_text: GString = chosen_folder_text.text();
+
+                gio::spawn_blocking(move || {
+
+                    apply_watermark(chosen_folder_text, watermarking_state_sender, progress_sender);
+                });
+            }
+    });
+
+    // Queue the async block to update the stack_page
+    glib::spawn_future_local(glib::clone!(
+        #[weak]
+        confirm_button,
+        #[weak]
+        main_stack,
+        async move {
+            while let Ok(state_bool) = watermarking_state_receiver.recv().await {
+                confirm_button.set_sensitive(state_bool);
+                let active_page_name = match state_bool {
+                    true => "main_page",
+                    false => "loader_page",
+                };
+                let _ = &main_stack.set_visible_child_full(active_page_name, gtk::StackTransitionType::Crossfade);
+            }
         }
-    });
+    ));
 
-    cancel_button.connect_clicked(move |_| {
-        let _ = &main_stack.set_visible_child_full("main_page", gtk::StackTransitionType::Crossfade);
-    });
+    // Queue the async block to update the progress_bar
+    glib::spawn_future_local(glib::clone!(
+        #[weak]
+        watermark_progress_bar,
+        async move {
+            while let Ok(progress_value) = progress_receiver.recv().await {
+                let progress_bar_value = (watermark_progress_bar.fraction() / watermark_progress_bar.pulse_step()).floor() as i32;
 
-    // Present window
+                if progress_bar_value != progress_value {
+                    watermark_progress_bar.set_fraction((progress_value as f64) * watermark_progress_bar.pulse_step());
+                };
+            }
+        }
+    ));
+
+    // cancel_button.connect_clicked(move |_| {
+    //     let _ = &main_stack.set_visible_child_full("main_page", gtk::StackTransitionType::Crossfade);
+    // });
+
     main_window.present();
 }
 
-fn apply_watermark() {
-    // todo!();
-    // let _ = &main_stack.set_visible_child_full("main_page", gtk::StackTransitionType::Crossfade);
+fn apply_watermark(chosen_folder_text: GString, watermarking_state_sender: async_channel::Sender<bool>, progress_sender: async_channel::Sender<i32>) {    
+    let path_buf = PathBuf::from(chosen_folder_text); 
+
+    let entries = std::fs::read_dir(path_buf).unwrap()
+        .filter_map(|entry| {
+            let entry = entry.ok()?;
+            let path = entry.path();
+            if is_image_file(&path) {
+                Some(path)
+            } else {
+                None
+            }
+        })
+        .collect::<Vec<_>>();
+    
+
+    watermarking_state_sender
+        .send_blocking(false)
+        .expect("The confirm channel needs to be open.");
+
+    for (i, elem) in entries.into_iter().enumerate(){
+        let one_second = Duration::from_secs(1);
+        progress_sender.send_blocking(i as i32 + 1).expect("The progress channel needs to be open.");
+
+        thread::sleep(one_second);
+    }
+
+    watermarking_state_sender
+    .send_blocking(true)
+    .expect("The confirm channel needs to be open.");
 }
 
 
 fn apply_exif_rotation(file_path: &std::path::Path, image_pixbuf: Pixbuf) -> Pixbuf {
-    let file = std::fs::File::open(file_path).unwrap();
+    let file = File::open(file_path).unwrap();
     let mut bufreader = std::io::BufReader::new(&file);
     let exifreader = exif::Reader::new();
     let exif: exif::Exif = match exifreader.read_from_container(&mut bufreader) {
@@ -629,7 +736,7 @@ fn apply_exif_rotation(file_path: &std::path::Path, image_pixbuf: Pixbuf) -> Pix
 fn is_image_file(path: &std::path::Path) -> bool {
     if let Some(extension) = path.extension() {
         let ext = extension.to_string_lossy().to_lowercase();
-        matches!(ext.as_str(), "jpg" | "jpeg" | "png" | "gif" | "bmp" | "webp")
+        matches!(ext.as_str(), "jpg" | "jpeg" | "png" | "gif" | "bmp" | "webp" | "avif" | "ico")
     } else {
         false
     }
