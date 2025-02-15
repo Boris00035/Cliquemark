@@ -434,6 +434,7 @@ fn build_ui(app: &Application) {
     .build();
 
     let loader_header = HeaderBar::builder()
+        .show_title(false)
         .build();
     loader_header.add_css_class("flat");
     loader_header_container.append(&loader_header);
@@ -490,8 +491,7 @@ fn build_ui(app: &Application) {
 
             folder_dialog.select_folder(Some(&*main_window),None::<&gtk::gio::Cancellable>, 
             move |result| {
-                
-                let mut folder_path: PathBuf;
+                let folder_path: PathBuf;
                 if let Ok(path) = result {
                     folder_path = path.path().unwrap();
                 } else {
@@ -604,7 +604,6 @@ fn build_ui(app: &Application) {
 
     confirm_button.connect_clicked(
         {
-            let main_stack = main_stack.clone();
             move |_| {
                 let watermarking_state_sender = watermarking_state_sender.clone();
                 let progress_sender = progress_sender.clone();
@@ -678,7 +677,7 @@ fn apply_watermark(chosen_folder_text: GString, watermarking_state_sender: async
         .send_blocking(false)
         .expect("The confirm channel needs to be open.");
 
-    for (i, elem) in entries.into_iter().enumerate(){
+    for (i, _elem) in entries.into_iter().enumerate(){
         let one_second = Duration::from_secs(1);
         progress_sender.send_blocking(i as i32 + 1).expect("The progress channel needs to be open.");
 
