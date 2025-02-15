@@ -90,10 +90,8 @@ fn calculate_watermark_position(
     let y = (active_alignment_array[2] + active_alignment_array[3]) * (image_preview.height() - height - margin_value)
                 + (active_alignment_array[0] + active_alignment_array[1]) * margin_value;
 
-    // println!("{:?}, {:?}, {:?}, {:?}", image_preview.width(), image_preview.height(), width, height);
     
     return Rectangle::new(x, y, width, height);
-    // return Rectangle::new(0,0, width, height);
 }
 
 
@@ -156,10 +154,8 @@ fn build_ui(app: &Application) {
     
     // Get rid of this grid, replace with nested gtkBox
     let selection_button_grid = Grid::builder()
-        // .valign(Align::Center)
         .margin_bottom(40)
         .build();
-    // selection_button_grid.add_css_class("linked");
 
     selection_button_grid.set_row_spacing(12);
     selection_button_grid.set_column_spacing(12);    
@@ -173,7 +169,6 @@ fn build_ui(app: &Application) {
         .valign(Align::Fill)
         .halign(Align::Fill)
         .build();
-    // choose_folder_button.add_css_class("suggested-action");
 
     let chosen_folder_text = Rc::new(Entry::builder()
         .hexpand(true)
@@ -273,23 +268,6 @@ fn build_ui(app: &Application) {
     image_configs_container.add(&settings_action_row);
 
 
-    // let margin_label = Label::builder()
-    //     .label("Margin:")
-    //     .build();
-    // margin_label.add_css_class("dimmed");
-    // let margin_input = Rc::new(SpinButton::builder()
-    //     .adjustment(&adjustment)
-    //     .climb_rate(1.0)
-    //     .digits(0)
-    //     .orientation(Orientation::Horizontal)
-    //     .valign(Align::Center)
-    //     .build()
-    // );
-    // let margin_action_row = ActionRow::builder()
-    //     .title("Margin:")
-    //     .build();
-    // margin_action_row.add_suffix(&*margin_input);
-
     let margin_adjustment = Adjustment::new(0.0, 0.0, 100.0, 1.0, 1.0, 0.0);
     let margin_spin_row = Rc::new(SpinRow::builder()
         .title("Margin:")
@@ -317,8 +295,6 @@ fn build_ui(app: &Application) {
 
     
     let header_container = Box::builder()
-        // .hexpand(true)
-        // .vexpand(true)
         .orientation(Orientation::Vertical)
         .build(); 
     header_container.append(&preview_header);
@@ -363,11 +339,9 @@ fn build_ui(app: &Application) {
     preview_widget.set_child(Some(&*image_preview));
 
     let watermark_preview = Rc::new(Picture::builder()
-        // .content_fit(ContentFit::Contain)
         .build()
     );
     
-    // preview_widget.set_child(Some(&aspect_frame));
     preview_widget.add_overlay(&*watermark_preview);
     
     alignment_toggle_group.connect_active_notify({
@@ -426,15 +400,14 @@ fn build_ui(app: &Application) {
 
     let loader_header_container = Box::builder()
         .orientation(Orientation::Vertical)
-        // .halign(Align::Center)
         .build();
 
     let loader_navigation_page = NavigationPage::builder()
-    .child(&loader_header_container)    
+    .child(&loader_header_container)
+    .title("Cliquemark")    
     .build();
 
     let loader_header = HeaderBar::builder()
-        .show_title(false)
         .build();
     loader_header.add_css_class("flat");
     loader_header_container.append(&loader_header);
@@ -498,16 +471,6 @@ fn build_ui(app: &Application) {
                     return;
                 }
                 
-                // let folder_path = match result {
-                //     Ok(folder) => {
-                //         &folder.path().unwrap();
-                //     }
-                //     Err(error) => {
-                //         println!("Folder picker failed: {}", error);
-                //         return;
-                //     }
-                // };  
-    
                 chosen_folder_text.set_text(folder_path.to_str().unwrap());
                 
                 let random_preview_entry;
