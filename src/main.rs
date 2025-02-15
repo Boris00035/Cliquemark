@@ -6,7 +6,6 @@ use adw::{
     prelude::*,
     Application,
     glib,
-    glib::GString, 
     ApplicationWindow, 
     gdk::Rectangle,
     gdk::Texture,
@@ -230,16 +229,17 @@ fn build_ui(app: &Application) {
         .label("Bottom right")
         .build();
     // top_left_toggle.set_child(true);
-    let alignment_toggle_group = ToggleGroup::builder()
+    let alignment_toggle_group = Rc::new(ToggleGroup::builder()
         .valign(Align::Center)
-        .build();
+        .build()
+    );
     alignment_toggle_group.add(top_left_toggle);
     alignment_toggle_group.add(top_right_toggle);
     alignment_toggle_group.add(bottom_left_toggle);
     alignment_toggle_group.add(bottom_right_toggle);
     alignment_toggle_group.set_active(3);
     
-    settings_box.append(&alignment_toggle_group);
+    settings_box.append(&*alignment_toggle_group);
 
 
     let image_configs_container = PreferencesGroup::builder()
@@ -361,6 +361,9 @@ fn build_ui(app: &Application) {
         let image_preview = Rc::clone(&image_preview);
         let scale_slider = Rc::clone(&scale_slider);
         let margin_input = Rc::clone(&margin_spin_row);
+
+
+        let alignment_toggle_group = Rc::clone(&alignment_toggle_group);
 
         move |_, _watermark_preview| {
             let alignment_config_array: [i32; 4] = match alignment_toggle_group.active() {
@@ -519,8 +522,12 @@ fn build_ui(app: &Application) {
         }
     });
 
-    choose_watermark_button.connect_clicked({
-        let main_window = Rc::clone(&main_window);        
+    choose_watermark_button.connect_clicked(
+        {
+        let main_window = Rc::clone(&main_window);
+        let chosen_watermark_text = Rc::clone(&chosen_watermark_text);
+        let watermark_preview = Rc::clone(&watermark_preview);   
+
         move |_| {
             let file_dialog = FileDialog::builder()
             .title("Select Watermark")
@@ -565,19 +572,35 @@ fn build_ui(app: &Application) {
     let (watermarking_state_sender, watermarking_state_receiver) = async_channel::bounded(1);
     let (progress_sender, progress_receiver) = async_channel::bounded(1);
 
-    confirm_button.connect_clicked(
-        {
-            move |_| {
-                let watermarking_state_sender = watermarking_state_sender.clone();
-                let progress_sender = progress_sender.clone();
+    confirm_button.connect_clicked(move |_| {
+        let chosen_folder = (&chosen_folder_text).text().to_string();
+        let chosen_watermark = (&chosen_watermark_text).text().to_string();
+        let scale = (&scale_slider).value();
+        let margin = (&margin_spin_row).value() as i32;
+        let alignment = match &alignment_toggle_group.active() {
+            0 => [1, 0, 0, 0],
+            1 => [0, 1, 0, 0],
+            2 => [0, 0, 1, 0],
+            3 => [0, 0, 0, 1],
+            _ => [0, 0, 0, 1],
+        };
 
-                let chosen_folder_text: GString = chosen_folder_text.text();
+        let watermarking_state_sender = watermarking_state_sender.clone();
+        let progress_sender = progress_sender.clone();
 
-                gio::spawn_blocking(move || {
-
-                    apply_watermark(chosen_folder_text, watermarking_state_sender, progress_sender);
-                });
+        gio::spawn_blocking({
+            move || {
+                apply_watermark(
+                    chosen_folder,  
+                    chosen_watermark,
+                    scale,
+                    margin,
+                    alignment,
+                    watermarking_state_sender,
+                    progress_sender);
+                }
             }
+        );
     });
 
     // Queue the async block to update the stack_page
@@ -620,32 +643,64 @@ fn build_ui(app: &Application) {
     main_window.present();
 }
 
-fn apply_watermark(chosen_folder_text: GString, watermarking_state_sender: async_channel::Sender<bool>, progress_sender: async_channel::Sender<i32>) {    
-    let path_buf = PathBuf::from(chosen_folder_text); 
-
-    let entries = std::fs::read_dir(path_buf).unwrap()
-        .filter_map(|entry| {
-            let entry = entry.ok()?;
-            let path = entry.path();
-            if is_image_file(&path) {
-                Some(path)
-            } else {
-                None
-            }
-        })
-        .collect::<Vec<_>>();
+fn apply_watermark( 
+    chosen_folder:              String, 
+    _chosen_watermark:          String, 
+    _scale:                     f64,
+    _margin:                    i32,
+    _alignment:                 [i32; 4],
+    watermarking_state_sender:  async_channel::Sender<bool>, 
+    progress_sender:            async_channel::Sender<i32>) {    
+    // TODO: SANITIZE INPUT BEFORE CALLING APPLY_WATERMARK
     
-
     watermarking_state_sender
         .send_blocking(false)
         .expect("The confirm channel needs to be open.");
+    
+    // println!("{:?}", chosen_folder);
+    let path_buf = PathBuf::from(chosen_folder); 
+    
+    let image_entries = match std::fs::read_dir(path_buf) {
+        Ok(entries) => entries,
+        Err(error_message) => {
+            eprintln!("Failed to read directory: {}", error_message);
+            watermarking_state_sender
+            .send_blocking(true)
+            .expect("The confirm channel needs to be open.");            
+            return;
+        }
+    }.filter_map(|entry| {
+        let entry = entry.ok()?;
+        let path = entry.path();
+        if is_image_file(&path) {
+            return Some(path);
+        } else {
+            return None;
+        }
+    }).collect::<Vec<_>>();
+    
+    let watermark_pixbuf = Pixbuf::from_file(&_chosen_watermark).map_err(|error| error.message().to_string()).unwrap();
+    let _corrected_pixbuf = watermark_pixbuf.apply_embedded_orientation().unwrap();
 
-    for (i, _elem) in entries.into_iter().enumerate(){
-        let one_second = Duration::from_secs(1);
-        progress_sender.send_blocking(i as i32 + 1).expect("The progress channel needs to be open.");
+    // 2. determine the name for the output folder "baseName_number", recursively add 1 to number and start at 0
 
+    
+    let mut progress_value = 0;
+    let _results_array: Vec<Result<PathBuf, String>> = image_entries.into_iter().map(|entry| {
+        progress_value += 1;
+        progress_sender.send_blocking(progress_value).expect("The progress channel needs to be open.");
+
+        let image_pixbuf = Pixbuf::from_file(&entry).map_err(|error| error.message().to_string()).unwrap();
+        let _corrected_pixbuf = image_pixbuf.apply_embedded_orientation().unwrap();
+        // 1. calculate and apply with composite
+        // 3. write each image
+     
+
+        let one_second = Duration::from_millis(100);
         thread::sleep(one_second);
-    }
+        return Ok(entry);
+    }).collect();
+
 
     watermarking_state_sender
     .send_blocking(true)
