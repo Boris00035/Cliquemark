@@ -32,7 +32,7 @@ use gtk::{
     ScrolledWindow,
     Overlay,
     Picture,
-    gdk_pixbuf::{Pixbuf, PixbufRotation},
+    gdk_pixbuf::{Pixbuf, PixbufRotation, InterpType},
     Stack,
     StackTransitionType,
     Entry,
@@ -43,13 +43,10 @@ use gtk::{
     };
 
 use std::{
-    thread,
-    time::Duration,
-    rc::Rc,
-    cell::RefCell,
-    path::PathBuf,
-    fs::File,
+    cell::RefCell, fs::{self, File}, io, path::PathBuf, rc::Rc, char,
 };
+
+use rayon::prelude::*;
 
 use exif;
 use rand::prelude::IndexedRandom;
@@ -75,21 +72,26 @@ fn calculate_watermark_position(
 {
     let mut width_ratio = 0.0;
     let mut height_ratio = 0.0;
+    let mut global_scale = 1.0;
     
     if preview_image_dimensions.borrow()[0] != 0 && preview_image_dimensions.borrow()[1] != 0 {
         width_ratio = preview_watermark_dimensions.borrow()[0] as f64 / preview_image_dimensions.borrow()[0] as f64;
         height_ratio = preview_watermark_dimensions.borrow()[1] as f64 / preview_image_dimensions.borrow()[1] as f64;
-    }
     
+        global_scale = image_preview.width() as f32 / preview_image_dimensions.borrow()[0] as f32;
+    }
+
+
     let width = (width_ratio * image_preview.width() as f64 * scale_slider_value).ceil() as i32;
     let height = (height_ratio * image_preview.height() as f64 * scale_slider_value).ceil() as i32;
 
-    let x = (active_alignment_array[1] + active_alignment_array[3]) * (image_preview.width() - width - margin_value)
-                + (active_alignment_array[0] + active_alignment_array[2]) * margin_value;
-    let y = (active_alignment_array[2] + active_alignment_array[3]) * (image_preview.height() - height - margin_value)
-                + (active_alignment_array[0] + active_alignment_array[1]) * margin_value;
+    let adjusted_margin = (margin_value as f32 * global_scale).ceil() as i32;
 
-    
+    let x = (active_alignment_array[1] + active_alignment_array[3]) * (image_preview.width() - width - adjusted_margin)
+                + (active_alignment_array[0] + active_alignment_array[2]) * adjusted_margin;
+    let y = (active_alignment_array[2] + active_alignment_array[3]) * (image_preview.height() - height - adjusted_margin)
+                + (active_alignment_array[0] + active_alignment_array[1]) * adjusted_margin;
+
     return Rectangle::new(x, y, width, height);
 }
 
@@ -268,11 +270,11 @@ fn build_ui(app: &Application) {
     image_configs_container.add(&settings_action_row);
 
 
-    let margin_adjustment = Adjustment::new(0.0, 0.0, 100.0, 1.0, 1.0, 0.0);
+    let margin_adjustment = Adjustment::new(0.0, 0.0, 1000.0, 10.0, 10.0, 0.0);
     let margin_spin_row = Rc::new(SpinRow::builder()
         .title("Margin:")
         .adjustment(&margin_adjustment)
-        .climb_rate(1.0)
+        // .climb_rate(10.0)
         .build()
     );
     image_configs_container.add(&*margin_spin_row);
@@ -433,6 +435,7 @@ fn build_ui(app: &Application) {
     let watermark_progress_bar = Rc::new(ProgressBar::builder()
         .width_request(300)
         .margin_top(30)
+        .show_text(true)
         .build()
     );
     loader_page_container.append(&*watermark_progress_bar);
@@ -543,7 +546,7 @@ fn build_ui(app: &Application) {
                     Ok(file) => {
                         let file_path = &file.path().unwrap();
                         // let file_path: &std::path::Path = &file.path().unwrap();
-                        chosen_watermark_text.set_text(&file_path.file_name().unwrap().to_str().unwrap());
+                        chosen_watermark_text.set_text(&file_path.to_str().unwrap());
                         
                         let mut preview_watermark_pixbuf = Pixbuf::from_file(&file_path).unwrap();
 
@@ -645,10 +648,10 @@ fn build_ui(app: &Application) {
 
 fn apply_watermark( 
     chosen_folder:              String, 
-    _chosen_watermark:          String, 
-    _scale:                     f64,
-    _margin:                    i32,
-    _alignment:                 [i32; 4],
+    chosen_watermark:           String, 
+    scale:                      f64,
+    margin:                     i32,
+    alignment:                  [i32; 4],
     watermarking_state_sender:  async_channel::Sender<bool>, 
     progress_sender:            async_channel::Sender<i32>) {    
     // TODO: SANITIZE INPUT BEFORE CALLING APPLY_WATERMARK
@@ -658,7 +661,7 @@ fn apply_watermark(
         .expect("The confirm channel needs to be open.");
     
     // println!("{:?}", chosen_folder);
-    let path_buf = PathBuf::from(chosen_folder); 
+    let path_buf = PathBuf::from(&chosen_folder); 
     
     let image_entries = match std::fs::read_dir(path_buf) {
         Ok(entries) => entries,
@@ -679,26 +682,49 @@ fn apply_watermark(
         }
     }).collect::<Vec<_>>();
     
-    let watermark_pixbuf = Pixbuf::from_file(&_chosen_watermark).map_err(|error| error.message().to_string()).unwrap();
-    let _corrected_pixbuf = watermark_pixbuf.apply_embedded_orientation().unwrap();
-
-    // 2. determine the name for the output folder "baseName_number", recursively add 1 to number and start at 0
-
+    let mut watermark_pixbuf = Pixbuf::from_file(&chosen_watermark).map_err(|error| error.message().to_string()).unwrap();
+    watermark_pixbuf = watermark_pixbuf.apply_embedded_orientation().unwrap();
     
+
+    let mut target_parent = PathBuf::from(&chosen_folder);
+    target_parent.push("../");
+    let target_folder = create_target_folder(("watermarked").to_string(), target_parent).unwrap();
+    
+
     let mut progress_value = 0;
-    let _results_array: Vec<Result<PathBuf, String>> = image_entries.into_iter().map(|entry| {
+    let _results_array: Vec<Result<PathBuf, String>> = image_entries.into_iter().map(|image_entry| {
         progress_value += 1;
         progress_sender.send_blocking(progress_value).expect("The progress channel needs to be open.");
 
-        let image_pixbuf = Pixbuf::from_file(&entry).map_err(|error| error.message().to_string()).unwrap();
-        let _corrected_pixbuf = image_pixbuf.apply_embedded_orientation().unwrap();
-        // 1. calculate and apply with composite
-        // 3. write each image
-     
+        let mut image_pixbuf = Pixbuf::from_file(&image_entry).map_err(|error| error.message().to_string()).unwrap();
+        image_pixbuf = image_pixbuf.apply_embedded_orientation().unwrap();
 
-        let one_second = Duration::from_millis(100);
-        thread::sleep(one_second);
-        return Ok(entry);
+
+        let watermark_scaled_width = (watermark_pixbuf.width() as f64 * scale).ceil() as i32;
+        let watermark_scaled_height = (watermark_pixbuf.height() as f64 * scale).ceil() as i32;
+
+        let watermark_position_x = (alignment[1] + alignment[3]) * (&image_pixbuf.width() - watermark_scaled_width - margin)
+                + (alignment[0] + alignment[2]) * margin;
+        let watermark_position_y = (alignment[2] + alignment[3]) * (&image_pixbuf.height() - watermark_scaled_height - margin)
+                + (alignment[0] + alignment[1]) * margin;
+
+        // println!("x: {:?}, y: {:?}, watermark_size: {:?},{:?} align: {:?}", watermark_poition_x, watermark_position_y, watermark_scaled_width, watermark_scaled_height, alignment);
+        watermark_pixbuf.composite(
+            &mut image_pixbuf,
+            watermark_position_x,
+            watermark_position_y,
+            watermark_scaled_width,
+            watermark_scaled_height,
+            watermark_position_x as f64,
+            watermark_position_y as f64,
+            1.0,
+            1.0,
+            InterpType::Bilinear,
+            255
+        );
+
+        let _ = image_pixbuf.savev(target_folder.join(&image_entry.file_name().unwrap()), "png", &[]);
+        return Ok(image_entry);
     }).collect();
 
 
@@ -756,5 +782,32 @@ fn is_image_file(path: &std::path::Path) -> bool {
         matches!(ext.as_str(), "jpg" | "jpeg" | "png" | "gif" | "bmp" | "webp" | "avif" | "ico")
     } else {
         false
+    }
+}
+
+fn create_target_folder(base_name: String, target_parent: PathBuf) -> Result<PathBuf, String> {
+    
+    let target_folder = target_parent.join(&base_name);
+    // println!("{:?}", target_parent);
+    if fs::create_dir(&target_folder).is_ok() {
+        return Ok(target_folder);
+    }
+    
+    let mut i = 1;
+    
+    loop {
+        let mut buf = base_name.clone();
+
+        buf.push(char::from_digit(i, 10).unwrap());
+
+        println!("{:?}", target_parent);
+        let target_folder = target_parent.join(&buf);
+        println!("{:?}", target_folder);
+
+        match fs::create_dir(&target_folder) {
+            Ok(()) => return Ok(target_folder),
+            Err(error) if error.kind() == io::ErrorKind::AlreadyExists => i += 1,
+            Err(_error) => return Err(("Failed to create directory").to_string()),
+        }
     }
 }
