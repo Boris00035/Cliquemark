@@ -7,8 +7,10 @@ use adw::{
     Application,
     glib,
     ApplicationWindow, 
-    gdk::Rectangle,
-    gdk::Texture,
+    gdk::{
+        Rectangle,
+        Texture,
+    },
     ToggleGroup,
     Toggle,
     HeaderBar,
@@ -32,7 +34,7 @@ use gtk::{
     ScrolledWindow,
     Overlay,
     Picture,
-    gdk_pixbuf::{Pixbuf, PixbufRotation, InterpType},
+    gdk_pixbuf::Pixbuf,
     Stack,
     StackTransitionType,
     Entry,
@@ -48,7 +50,13 @@ use std::{
 
 use rayon::prelude::*;
 
-use exif;
+use image::{
+    imageops::{self, FilterType::Triangle}, 
+    metadata::Orientation as ImageOrientation, 
+    DynamicImage, 
+    ImageDecoder, 
+    ImageReader, 
+    RgbaImage};
 use rand::prelude::IndexedRandom;
 
 
@@ -455,6 +463,7 @@ fn build_ui(app: &Application) {
         let main_window = Rc::clone(&main_window);
         let watermark_progress_bar = Rc::clone(&watermark_progress_bar);
         let chosen_folder_text= Rc::clone(&chosen_folder_text);
+        let image_preview = Rc::clone(&image_preview);
 
         let preview_image_dimensions = Rc::clone(&preview_image_dimensions);
 
@@ -508,12 +517,10 @@ fn build_ui(app: &Application) {
                 
                 let mut preview_image_pixbuf = Pixbuf::from_file(&random_preview_entry).unwrap();
 
-                preview_image_pixbuf = match random_preview_entry.extension().and_then(|ext| ext.to_str()) {
-                    Some("png") => preview_image_pixbuf,
-                    Some("PNG") => preview_image_pixbuf,
-                    _ => apply_exif_rotation(random_preview_entry, preview_image_pixbuf),
+                preview_image_pixbuf = match preview_image_pixbuf.apply_embedded_orientation() {
+                    Some(image) => image,
+                    _ => preview_image_pixbuf,
                 };
-
                 let mut image_preview_dims = preview_image_dimensions.borrow_mut();
 
                 image_preview_dims[0] = preview_image_pixbuf.width(); 
@@ -555,10 +562,9 @@ fn build_ui(app: &Application) {
                         watermark_preview_dims[1] = preview_watermark_pixbuf.height();  
                         // watermark_preview.set_file( Some(&File::for_path(&file_path)) );
 
-                        preview_watermark_pixbuf = match file_path.extension().and_then(|ext| ext.to_str()) {
-                            Some("png") => preview_watermark_pixbuf,
-                            Some("PNG") => preview_watermark_pixbuf,
-                            _ => apply_exif_rotation(file_path, preview_watermark_pixbuf),
+                        preview_watermark_pixbuf = match preview_watermark_pixbuf.apply_embedded_orientation() {
+                            Some(image) => image,
+                            _ => preview_watermark_pixbuf,
                         };
                         watermark_preview.set_paintable( Some(&Texture::for_pixbuf(&preview_watermark_pixbuf)) );
                     }
@@ -576,10 +582,19 @@ fn build_ui(app: &Application) {
     let (progress_sender, progress_receiver) = async_channel::bounded(1);
 
     confirm_button.connect_clicked(move |_| {
+
+        let watermark_preview = Rc::clone(&watermark_preview);
+        let image_preview = Rc::clone(&image_preview);
+
+        let relative_width = watermark_preview.width() as f32 / image_preview.width() as f32 ;
+        let relative_height = watermark_preview.height() as f32 / image_preview.height() as f32;
+
         let chosen_folder = (&chosen_folder_text).text().to_string();
         let chosen_watermark = (&chosen_watermark_text).text().to_string();
-        let scale = (&scale_slider).value();
-        let margin = (&margin_spin_row).value() as i32;
+
+        let relative_margin_width = (&margin_spin_row).value() as f32 / preview_image_dimensions.borrow()[0] as f32;
+        let relative_margin_height = (&margin_spin_row).value() as f32 / preview_image_dimensions.borrow()[1] as f32;
+
         let alignment = match &alignment_toggle_group.active() {
             0 => [1, 0, 0, 0],
             1 => [0, 1, 0, 0],
@@ -594,10 +609,12 @@ fn build_ui(app: &Application) {
         gio::spawn_blocking({
             move || {
                 apply_watermark(
+                    relative_width,
+                    relative_height,
                     chosen_folder,  
                     chosen_watermark,
-                    scale,
-                    margin,
+                    relative_margin_width,
+                    relative_margin_height,
                     alignment,
                     watermarking_state_sender,
                     progress_sender);
@@ -630,11 +647,12 @@ fn build_ui(app: &Application) {
         watermark_progress_bar,
         async move {
             while let Ok(progress_value) = progress_receiver.recv().await {
-                let progress_bar_value = (watermark_progress_bar.fraction() / watermark_progress_bar.pulse_step()).floor() as i32;
-
-                if progress_bar_value != progress_value {
-                    watermark_progress_bar.set_fraction((progress_value as f64) * watermark_progress_bar.pulse_step());
-                };
+                if progress_value == 0 {
+                    watermark_progress_bar.set_fraction(watermark_progress_bar.fraction() + watermark_progress_bar.pulse_step());
+                }
+                else {
+                    watermark_progress_bar.set_fraction(0.0);
+                }
             }
         }
     ));
@@ -647,11 +665,13 @@ fn build_ui(app: &Application) {
 }
 
 fn apply_watermark( 
+    relative_width:             f32,
+    relative_height:            f32,
     chosen_folder:              String, 
     chosen_watermark:           String, 
-    scale:                      f64,
-    margin:                     i32,
-    alignment:                  [i32; 4],
+    relative_margin_width:      f32,
+    relative_margin_height:     f32,
+    alignment:                  [i64; 4],
     watermarking_state_sender:  async_channel::Sender<bool>, 
     progress_sender:            async_channel::Sender<i32>) {    
     // TODO: SANITIZE INPUT BEFORE CALLING APPLY_WATERMARK
@@ -668,8 +688,8 @@ fn apply_watermark(
         Err(error_message) => {
             eprintln!("Failed to read directory: {}", error_message);
             watermarking_state_sender
-            .send_blocking(true)
-            .expect("The confirm channel needs to be open.");            
+                .send_blocking(true)
+                .expect("The confirm channel needs to be open.");            
             return;
         }
     }.filter_map(|entry| {
@@ -682,99 +702,61 @@ fn apply_watermark(
         }
     }).collect::<Vec<_>>();
     
-    let mut watermark_pixbuf = Pixbuf::from_file(&chosen_watermark).map_err(|error| error.message().to_string()).unwrap();
-    watermark_pixbuf = watermark_pixbuf.apply_embedded_orientation().unwrap();
-    
+    let mut watermark_decoder = ImageReader::open(&chosen_watermark).unwrap().into_decoder().unwrap();
+    let watermark_orientation = match watermark_decoder.orientation() {
+        Ok(orientation) => orientation,
+        Err(_) => ImageOrientation::NoTransforms,
+    };
+    let mut watermark_image = DynamicImage::from_decoder(watermark_decoder).unwrap();
+    watermark_image.apply_orientation(watermark_orientation);
+
 
     let mut target_parent = PathBuf::from(&chosen_folder);
-    target_parent.push("../");
+    // target_parent.push("../");
     let target_folder = create_target_folder(("watermarked").to_string(), target_parent).unwrap();
-    
-
-    let mut progress_value = 0;
-    let _results_array: Vec<Result<PathBuf, String>> = image_entries.into_iter().map(|image_entry| {
-        progress_value += 1;
-        progress_sender.send_blocking(progress_value).expect("The progress channel needs to be open.");
-
-        let mut image_pixbuf = Pixbuf::from_file(&image_entry).map_err(|error| error.message().to_string()).unwrap();
-        image_pixbuf = image_pixbuf.apply_embedded_orientation().unwrap();
 
 
-        let watermark_scaled_width = (watermark_pixbuf.width() as f64 * scale).ceil() as i32;
-        let watermark_scaled_height = (watermark_pixbuf.height() as f64 * scale).ceil() as i32;
+    progress_sender.send_blocking(1).expect("The progress channel needs to be open.");
+    let _results_array: Vec<Result<PathBuf, String>> = image_entries.into_par_iter().map(|image_entry| {
+        progress_sender.send_blocking(0).expect("The progress channel needs to be open.");
 
-        let watermark_position_x = (alignment[1] + alignment[3]) * (&image_pixbuf.width() - watermark_scaled_width - margin)
-                + (alignment[0] + alignment[2]) * margin;
-        let watermark_position_y = (alignment[2] + alignment[3]) * (&image_pixbuf.height() - watermark_scaled_height - margin)
-                + (alignment[0] + alignment[1]) * margin;
+        let mut image_decoder = ImageReader::open(&image_entry).unwrap().into_decoder().unwrap();
+        let image_orientation = match image_decoder.orientation() {
+            Ok(orientation) => orientation,
+            Err(_) => ImageOrientation::NoTransforms,
+        };
+        let mut image = match DynamicImage::from_decoder(image_decoder) {
+            Ok(image) => image,
+            Err(error) => return Err(error.to_string()),
+        };
+        image.apply_orientation(image_orientation);
 
-        // println!("x: {:?}, y: {:?}, watermark_size: {:?},{:?} align: {:?}", watermark_poition_x, watermark_position_y, watermark_scaled_width, watermark_scaled_height, alignment);
-        watermark_pixbuf.composite(
-            &mut image_pixbuf,
-            watermark_position_x,
-            watermark_position_y,
-            watermark_scaled_width,
-            watermark_scaled_height,
-            watermark_position_x as f64,
-            watermark_position_y as f64,
-            1.0,
-            1.0,
-            InterpType::Bilinear,
-            255
-        );
 
-        let _ = image_pixbuf.savev(target_folder.join(&image_entry.file_name().unwrap()), "png", &[]);
+        let watermark_scaled_width = (relative_width * image.width() as f32).round() as i64;
+        let watermark_scaled_height = (relative_height * image.height() as f32).round() as i64;
+
+        let x_margin_scaled = (relative_margin_width * image.width() as f32).round() as i64;
+        let y_margin_scaled = (relative_margin_height * image.height() as f32).round() as i64;
+
+        let watermark_image_scaled = image::DynamicImage::ImageRgba8(imageops::resize(&watermark_image, watermark_scaled_width as u32, watermark_scaled_height as u32, Triangle));
+
+        let watermark_position_x = (alignment[1] + alignment[3]) * (image.width() as i64 - watermark_scaled_width - x_margin_scaled)
+                + (alignment[0] + alignment[2]) * x_margin_scaled;
+        let watermark_position_y = (alignment[2] + alignment[3]) * (image.height() as i64 - watermark_scaled_height - y_margin_scaled)
+                + (alignment[0] + alignment[1]) * y_margin_scaled;
+
+        imageops::overlay(&mut image, &watermark_image_scaled, watermark_position_x, watermark_position_y);
+        
+
+        let _ = image.save(target_folder.join(&image_entry.file_name().unwrap()));
         return Ok(image_entry);
     }).collect();
 
-
     watermarking_state_sender
-    .send_blocking(true)
-    .expect("The confirm channel needs to be open.");
+        .send_blocking(true)
+        .expect("The confirm channel needs to be open.");
 }
 
-
-fn apply_exif_rotation(file_path: &std::path::Path, image_pixbuf: Pixbuf) -> Pixbuf {
-    let file = File::open(file_path).unwrap();
-    let mut bufreader = std::io::BufReader::new(&file);
-    let exifreader = exif::Reader::new();
-    let exif: exif::Exif = match exifreader.read_from_container(&mut bufreader) {
-        Ok(exif) => exif,
-        Err(e) => {
-            eprintln!("Failed to read EXIF data: {}", e);
-            return image_pixbuf;
-        }
-    };
-    
-    let image_orientation = match exif.get_field(exif::Tag::Orientation, exif::In::PRIMARY) {
-        Some(orientation) =>
-            match orientation.value.get_uint(0) {
-                Some(v @ 1..=8) => v,
-                _ => {
-                    eprintln!("Exif orientation value is broken, file:{:?}", file_path.to_str().unwrap());
-                    1
-                },
-            },
-        Option::None => 1,
-    };
-
-    let corrected_pixbuf = match image_orientation {
-        1 => Some(image_pixbuf),
-        2 => image_pixbuf.flip(true),
-        3 => image_pixbuf.rotate_simple(PixbufRotation::Upsidedown),
-        4 => image_pixbuf.flip(false),
-        5 => image_pixbuf.flip(true).unwrap().rotate_simple(PixbufRotation::Counterclockwise),
-        6 => image_pixbuf.rotate_simple(PixbufRotation::Clockwise),
-        7 => image_pixbuf.flip(true).unwrap().rotate_simple(PixbufRotation::Clockwise),
-        8 => image_pixbuf.rotate_simple(PixbufRotation::Counterclockwise),
-        _ => {
-            eprintln!{"The exif orientation value of file \"{}\" has a value higher outside of 1-8, which is unexpected, no rotation applied", file_path.to_str().unwrap()};
-            Some(image_pixbuf)
-            },
-    }.expect("Failed to apply exif transformation");
-
-    return corrected_pixbuf;
-}
 
 fn is_image_file(path: &std::path::Path) -> bool {
     if let Some(extension) = path.extension() {
