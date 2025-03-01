@@ -45,7 +45,7 @@ use gtk::{
     };
 
 use std::{
-    cell::RefCell, fs::{self, File}, io, path::PathBuf, rc::Rc, char,
+    cell::RefCell, fs, io, path::PathBuf, rc::Rc, char,
 };
 
 use rayon::prelude::*;
@@ -55,8 +55,8 @@ use image::{
     metadata::Orientation as ImageOrientation, 
     DynamicImage, 
     ImageDecoder, 
-    ImageReader, 
-    RgbaImage};
+    ImageReader
+    };
 use rand::prelude::IndexedRandom;
 
 
@@ -711,7 +711,7 @@ fn apply_watermark(
     watermark_image.apply_orientation(watermark_orientation);
 
 
-    let mut target_parent = PathBuf::from(&chosen_folder);
+    let target_parent = PathBuf::from(&chosen_folder);
     // target_parent.push("../");
     let target_folder = create_target_folder(("watermarked").to_string(), target_parent).unwrap();
 
