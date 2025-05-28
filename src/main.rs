@@ -61,7 +61,7 @@ use rand::prelude::IndexedRandom;
 
 
 
-const APP_ID: &str = "org.gtk_rs.Cliquemark";
+const APP_ID: &str = "org.gtk_rs.Cliquemark"; 
 
 fn main() -> glib::ExitCode {
     let app = Application::builder().application_id(APP_ID).build();
