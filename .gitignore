@@ -3,3 +3,4 @@
 /archive
 /gtk
 /libadwaita
+.Cargo.lock
