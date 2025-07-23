@@ -7,6 +7,7 @@ use adw::{
     Application,
     glib,
     ApplicationWindow, 
+    gdk,
     gdk::{
         Rectangle,
         Texture,
@@ -124,8 +125,7 @@ fn build_ui(app: &Application) {
         .content(&main_stack)
         .build()
     );
-    // main_window.set_size_request(800, 200);
-    main_window.set_default_size(1000, 600);
+    main_window.set_default_size(1500, 900);
 
     let settings_header_container = Box::builder()
         .orientation(Orientation::Vertical)
@@ -554,6 +554,11 @@ fn build_ui(app: &Application) {
                         let file_path = &file.path().unwrap();
                         // let file_path: &std::path::Path = &file.path().unwrap();
                         chosen_watermark_text.set_text(&file_path.to_str().unwrap());
+
+                        if !is_image_file(&file_path) {
+                            watermark_preview.set_paintable(None::<&gdk::Paintable>);
+                            return;
+                        }
                         
                         let mut preview_watermark_pixbuf = Pixbuf::from_file(&file_path).unwrap();
 
@@ -712,6 +717,7 @@ fn apply_watermark(
     progress_sender.send_blocking(1).expect("The progress channel needs to be open.");
     let _results_array: Vec<Result<PathBuf, String>> = image_entries.into_par_iter().map(|image_entry| {
         progress_sender.send_blocking(0).expect("The progress channel needs to be open.");
+        
 
         let mut image_decoder = ImageReader::open(&image_entry).unwrap().into_decoder().unwrap();
         let image_orientation = match image_decoder.orientation() {

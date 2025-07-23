@@ -2,11 +2,10 @@
 name = "watermarklyGtk"
 version = "0.1.0"
 edition = "2021"
+description = "Application to watermark multiple images at the same time."
 
 [dependencies]
 adw = { version = "0.7.1", package = "libadwaita", features = ["v1_7"] }
-#cairo = "0.0.4"
-#gdk = "0.18.2"
 gdk-pixbuf-sys = "0.20.7"
 gtk = { version = "0.9.5", package = "gtk4", features = ["v4_16"] }
 rand = "0.9.0"
@@ -19,3 +18,4 @@ imageproc = "0.25.0"
 name = "Cliquemark"
 identifier = "com.Clique.mark"
 short_description = "Application to watermark multiple images at the same time."
+icon = ["assets/logo.png"]
