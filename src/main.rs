@@ -61,7 +61,7 @@ use rand::prelude::IndexedRandom;
 
 
 
-const APP_ID: &str = "org.gtk_rs.Cliquemark";
+const APP_ID: &str = "org.gtk_rs.Cliquemark"; 
 
 fn main() -> glib::ExitCode {
     let app = Application::builder().application_id(APP_ID).build();
@@ -586,14 +586,11 @@ fn build_ui(app: &Application) {
         let watermark_preview = Rc::clone(&watermark_preview);
         let image_preview = Rc::clone(&image_preview);
 
-        let relative_width = watermark_preview.width() as f32 / image_preview.width() as f32 ;
-        let relative_height = watermark_preview.height() as f32 / image_preview.height() as f32;
-
         let chosen_folder = (&chosen_folder_text).text().to_string();
         let chosen_watermark = (&chosen_watermark_text).text().to_string();
 
-        let relative_margin_width = (&margin_spin_row).value() as f32 / preview_image_dimensions.borrow()[0] as f32;
-        let relative_margin_height = (&margin_spin_row).value() as f32 / preview_image_dimensions.borrow()[1] as f32;
+        let relative_margin_width = (&margin_spin_row).value() as f32 / preview_image_dimensions.borrow()[0] as f32;        
+        let relative_surface_area = watermark_preview.width() as f32 * watermark_preview.height() as f32 / (image_preview.width() as f32 * image_preview.height() as f32); 
 
         let alignment = match &alignment_toggle_group.active() {
             0 => [1, 0, 0, 0],
@@ -609,12 +606,10 @@ fn build_ui(app: &Application) {
         gio::spawn_blocking({
             move || {
                 apply_watermark(
-                    relative_width,
-                    relative_height,
+                    relative_surface_area,
                     chosen_folder,  
                     chosen_watermark,
                     relative_margin_width,
-                    relative_margin_height,
                     alignment,
                     watermarking_state_sender,
                     progress_sender);
@@ -665,15 +660,13 @@ fn build_ui(app: &Application) {
 }
 
 fn apply_watermark( 
-    relative_width:             f32,
-    relative_height:            f32,
-    chosen_folder:              String, 
-    chosen_watermark:           String, 
-    relative_margin_width:      f32,
-    relative_margin_height:     f32,
-    alignment:                  [i64; 4],
-    watermarking_state_sender:  async_channel::Sender<bool>, 
-    progress_sender:            async_channel::Sender<i32>) {    
+    watermark_relative_surface_area:    f32,
+    chosen_folder:                      String, 
+    chosen_watermark:                   String, 
+    relative_margin_width:              f32,
+    alignment:                          [i64; 4],
+    watermarking_state_sender:          async_channel::Sender<bool>, 
+    progress_sender:                    async_channel::Sender<i32>) {    
     // TODO: SANITIZE INPUT BEFORE CALLING APPLY_WATERMARK
     
     watermarking_state_sender
@@ -731,12 +724,14 @@ fn apply_watermark(
         };
         image.apply_orientation(image_orientation);
 
-
-        let watermark_scaled_width = (relative_width * image.width() as f32).round() as i64;
-        let watermark_scaled_height = (relative_height * image.height() as f32).round() as i64;
-
+        let watermark_surface_area = watermark_relative_surface_area * image.width() as f32 * image.height() as f32;
+        let watermark_aspect_ratio = watermark_image.width() as f32 / watermark_image.height() as f32;
+        
+        let watermark_scaled_width = (watermark_surface_area * watermark_aspect_ratio).sqrt().round() as i64;
+        let watermark_scaled_height: i64 = (watermark_surface_area as f32 / watermark_aspect_ratio as f32).sqrt().round() as i64; 
+        
         let x_margin_scaled = (relative_margin_width * image.width() as f32).round() as i64;
-        let y_margin_scaled = (relative_margin_height * image.height() as f32).round() as i64;
+        let y_margin_scaled = x_margin_scaled;
 
         let watermark_image_scaled = image::DynamicImage::ImageRgba8(imageops::resize(&watermark_image, watermark_scaled_width as u32, watermark_scaled_height as u32, Triangle));
 
