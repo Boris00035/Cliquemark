@@ -3,6 +3,7 @@ name = "watermarklyGtk"
 version = "0.1.0"
 edition = "2021"
 description = "Application to watermark multiple images at the same time."
+authors = ["Boris van Boxtel borisvanboxtel@protonmail.com"]
 
 [dependencies]
 adw = { version = "0.7.1", package = "libadwaita", features = ["v1_7"] }
@@ -19,3 +20,4 @@ name = "Cliquemark"
 identifier = "com.Clique.mark"
 short_description = "Application to watermark multiple images at the same time."
 icon = ["assets/logo.png"]
+author = "Boris van Boxtel"
