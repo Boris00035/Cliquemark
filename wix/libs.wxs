@@ -1,0 +1,527 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Fragment>
+        <DirectoryRef Id="Bin">
+                <Component Id="cmpB968811B4B1DA6B96764D4A97EAB9C6A" Guid="{0BE4DDC9-B069-4139-B251-06ECA4F65E2E}">
+                    <File Id="filB50F6AEF99679F37EE4A0425B983745F" KeyPath="yes" Source="libs\edit.dll" />
+                </Component>
+                <Component Id="cmp9C067A045A6ADBFC162B2580EBC14F82" Guid="{9717C52F-24DA-4960-A0F3-07A1158E91E4}">
+                    <File Id="fil0FBE4CEA0C5AD46EA0E2AD184B7742E7" KeyPath="yes" Source="libs\libadwaita-1-0.dll" />
+                </Component>
+                <Component Id="cmp86A0BE686595EF7BB996629F8BFA6BDE" Guid="{E6FBE204-9B11-4576-9722-4094A64E537B}">
+                    <File Id="filAE918DF0DBA377289BB69C2FB3332DF8" KeyPath="yes" Source="libs\libappstream-5.dll" />
+                </Component>
+                <Component Id="cmp5A2F77CA223E64C0A9CEB39D1F534F92" Guid="{1C1F5306-49FB-4F05-A0E4-1E3298F64D30}">
+                    <File Id="fil2F16D02D342B620FA39AFC46E6DE6AF9" KeyPath="yes" Source="libs\libasprintf-0.dll" />
+                </Component>
+                <Component Id="cmp74BB78C4C5642DC0F7E63768E88F8EC5" Guid="{CD42F877-B51F-4513-8F2E-3062865DA46A}">
+                    <File Id="fil15657ACED96E9DA0AF4370FD1AF13ABE" KeyPath="yes" Source="libs\libatk-1.0-0.dll" />
+                </Component>
+                <Component Id="cmp4CCFFAABF415BF4DAF8104BEE1E46F1F" Guid="{A85AF82A-675B-42A2-B53B-69B3EC551D53}">
+                    <File Id="fil632A7B0CCDA1073D906535E4D5B11144" KeyPath="yes" Source="libs\libatomic-1.dll" />
+                </Component>
+                <Component Id="cmp82DC87F3CC3D4E92115235E25B8D3A36" Guid="{845D8DC8-3F69-445A-88CF-662D747238DC}">
+                    <File Id="fil83A7BCEC60861C3C1A29D029A015748F" KeyPath="yes" Source="libs\libbrotlicommon.dll" />
+                </Component>
+                <Component Id="cmp6B99567EA3AA27238361CB473B8EA7C1" Guid="{F6E99926-E373-4014-973D-9CA1375983B4}">
+                    <File Id="fil60F91CBCCD296D0B29DAA59F266A3BEB" KeyPath="yes" Source="libs\libbrotlidec.dll" />
+                </Component>
+                <Component Id="cmp1B6D9CB88E4136DB44756FD2D25AEA16" Guid="{7574F5F0-76E9-4D30-96C4-689246E392B8}">
+                    <File Id="filC32977E34A0799DA89839BDC5870338C" KeyPath="yes" Source="libs\libbrotlienc.dll" />
+                </Component>
+                <Component Id="cmp6559E6A6ECBEAD1A7CF5ABBBA644E10E" Guid="{B75B25BB-01FC-40C4-8F45-D3A0A4D7B10B}">
+                    <File Id="fil24380B31DB76B62D3F29DEFB963BACC3" KeyPath="yes" Source="libs\libbz2-1.dll" />
+                </Component>
+                <Component Id="cmp129A06CC62DF84794424D16E22F422D2" Guid="{B293A068-6CBF-4DDF-882D-29799BD7FBA5}">
+                    <File Id="fil91AA9E7910F67DA9FAA4A87D2B6DFF1E" KeyPath="yes" Source="libs\libcairo-2.dll" />
+                </Component>
+                <Component Id="cmp2982348DD6497D8A0B545E8A9AB3B743" Guid="{AAA10C14-40F4-4D45-8948-701EE0EBCB15}">
+                    <File Id="fil302E3336C42A702741E7FCD23239A270" KeyPath="yes" Source="libs\libcairo-gobject-2.dll" />
+                </Component>
+                <Component Id="cmp95A4221566E4484C9B8F10E15FE127B2" Guid="{097DD0B8-5FAD-4553-9779-0DC433E63FC6}">
+                    <File Id="fil34AEEE72556CFC46AC736263861C7296" KeyPath="yes" Source="libs\libcairo-script-interpreter-2.dll" />
+                </Component>
+                <Component Id="cmp46769BD7EB7DC1EA754B10C4758D4034" Guid="{E6282FDF-E993-4F19-9CE2-2E24650352F4}">
+                    <File Id="filB32579F0AE4B38D6B5270B62329F4824" KeyPath="yes" Source="libs\libcares-2.dll" />
+                </Component>
+                <Component Id="cmp80D0AC0943621BB63705C15185F082C0" Guid="{2A50ECC3-11F0-4617-B606-D3CE11B3DB1F}">
+                    <File Id="fil63B1B05E80BCD4425EC5B1CD62E8EF98" KeyPath="yes" Source="libs\libcharset-1.dll" />
+                </Component>
+                <Component Id="cmpB7F8887198AC4C53B9A7280542DE9233" Guid="{7137E9E3-0FA7-4BC0-8B87-26E91B4675C1}">
+                    <File Id="filCB5F2E2F1D108DBC910FD380840E97BE" KeyPath="yes" Source="libs\libcrypto-3-x64.dll" />
+                </Component>
+                <Component Id="cmp9ADD721C42306DE000A9955832558FAC" Guid="{0F799984-BA52-497E-90D3-2C2AF2BAF71B}">
+                    <File Id="filD74ABF5AE079BDFDE9260A541A17C28E" KeyPath="yes" Source="libs\libcurl-4.dll" />
+                </Component>
+                <Component Id="cmpB050EA478273B3C7A2823018838C73F0" Guid="{5DB01976-FF96-4168-A682-CDD0FBE190A3}">
+                    <File Id="fil090B020070760D3ADDB3F76444C39708" KeyPath="yes" Source="libs\libdatrie-1.dll" />
+                </Component>
+                <Component Id="cmpB927CAF0FE8D9F20154E71E18A176628" Guid="{83B59D0E-6CDA-48AD-83EF-35916CCB227A}">
+                    <File Id="fil72B80CCE98F61FFE77E00BC333A12B91" KeyPath="yes" Source="libs\libdeflate.dll" />
+                </Component>
+                <Component Id="cmpCDC3F9AF6268864019CDEF0DA48EA774" Guid="{07E8FB92-D279-4661-B310-F22B569EC281}">
+                    <File Id="fil67C0786328C5526B2583F5AAE6266F83" KeyPath="yes" Source="libs\libepoxy-0.dll" />
+                </Component>
+                <Component Id="cmpCD6DF080F7ABBA78B701317E26478D0B" Guid="{4EF44863-B539-4283-812C-46F42EC27F94}">
+                    <File Id="filF9F963EBAF54513960077CCA2A0B6EBE" KeyPath="yes" Source="libs\libexpat-1.dll" />
+                </Component>
+                <Component Id="cmpE2D87DEBBC6D2ED374541F1A06BA6E3C" Guid="{E523108F-396B-4900-B787-6F8AEB76317F}">
+                    <File Id="fil651B096D828B1971D6611079CB033DBA" KeyPath="yes" Source="libs\libffi-8.dll" />
+                </Component>
+                <Component Id="cmp87EFE5D05A8ACA4721BCDEEEEE76201D" Guid="{EAA2B9EB-3162-4F9E-8813-529BC3954E24}">
+                    <File Id="fil5D771A529F80104D2CA10E8C8E7EB8B2" KeyPath="yes" Source="libs\libfontconfig-1.dll" />
+                </Component>
+                <Component Id="cmp032F15ACE1A0DF63BBB2949526E9374E" Guid="{1E2ABB1F-D2E7-4FE4-AE8C-07EFCD2AD910}">
+                    <File Id="filECC97BCAEA8B3B0B2933DB2F183A77E0" KeyPath="yes" Source="libs\libformw6.dll" />
+                </Component>
+                <Component Id="cmp3E21B2CEF4B20BE8F7E496A3B86CA0AD" Guid="{2815E4FD-53D4-494F-97B3-FB9A4F1A699C}">
+                    <File Id="fil32C6FA9A338C3CAF86F9C198DC9B6F0A" KeyPath="yes" Source="libs\libfreetype-6.dll" />
+                </Component>
+                <Component Id="cmp3BAD3C281AA116E2A8AD44B138B08A2B" Guid="{CFFFEAE8-9EFC-47FB-A4C4-F3768CB91026}">
+                    <File Id="fil87AE07B0F8FA68801564DDB02314449F" KeyPath="yes" Source="libs\libfribidi-0.dll" />
+                </Component>
+                <Component Id="cmp9FCDACD60DD7B8363D2D78627EF298F9" Guid="{B06608D9-F7C4-43CA-9B69-749A8BB0165D}">
+                    <File Id="fil04EC4F32386DD3C9ABF41C5A8A159E76" KeyPath="yes" Source="libs\libgailutil-3-0.dll" />
+                </Component>
+                <Component Id="cmpB793C3768AA72CA7DD62C29C1897CEEB" Guid="{0AE648AF-C8EF-40EE-8FDE-5DA663A133B1}">
+                    <File Id="fil62BDB98D0F34856A2216249AF2BD8693" KeyPath="yes" Source="libs\libgcc_s_seh-1.dll" />
+                </Component>
+                <Component Id="cmp48FE4AD4D39E700594CB2C8B49769F15" Guid="{D678689C-24E7-40B2-BB76-11C91D58F460}">
+                    <File Id="filADEAE7F21391C51F6377B4CAE38F6D71" KeyPath="yes" Source="libs\libgdk-3-0.dll" />
+                </Component>
+                <Component Id="cmp9CA16335339AE1647F2E90B74A969FD7" Guid="{062BA638-8D45-4F6C-8DD9-782C7C08EB27}">
+                    <File Id="fil76BA35522D9645E4656D02158709B0D5" KeyPath="yes" Source="libs\libgdk_pixbuf-2.0-0.dll" />
+                </Component>
+                <Component Id="cmp23B759E938A4E027529A3706F0E6C691" Guid="{58FE388F-DF65-4A33-8BEF-767778949068}">
+                    <File Id="fil68E64C7A756CBF0DEE9980E77C540591" KeyPath="yes" Source="libs\libgif-7.dll" />
+                </Component>
+                <Component Id="cmpAE20D6E82C11354A5CD6188442EEF1FF" Guid="{7DE9FCF3-6A45-4F22-AA58-3B22EE133160}">
+                    <File Id="filEDAB2C24855543495932E0CA187299AD" KeyPath="yes" Source="libs\libgio-2.0-0.dll" />
+                </Component>
+                <Component Id="cmp738465F0420BE461DA0D257968A9DEA3" Guid="{D0CE99EE-57AC-4BBD-8E1D-4596FA5D39B2}">
+                    <File Id="fil5A404B5CF564918A4A3C2910E653E615" KeyPath="yes" Source="libs\libgirepository-2.0-0.dll" />
+                </Component>
+                <Component Id="cmp1595969B1EF4989A7E87492889DC598D" Guid="{BCEE008B-B6CB-41C3-8B68-88EF57712E94}">
+                    <File Id="fil63AD7DB954FD0560CD1A52DA3B7AE976" KeyPath="yes" Source="libs\libglib-2.0-0.dll" />
+                </Component>
+                <Component Id="cmpCD67690762AD9EBA403A9581CD66B72A" Guid="{311AC1DF-5624-4E90-9B2C-A55ED2191E12}">
+                    <File Id="filEFF8A9F89E17C53750F47689C6FCCE52" KeyPath="yes" Source="libs\libgmodule-2.0-0.dll" />
+                </Component>
+                <Component Id="cmpEBBF2783B32CCA850817EE30CA0301AF" Guid="{9570E57D-64F3-4DFB-995D-A9D639511B94}">
+                    <File Id="fil5EF6D8F1E0699B74CB5E68FDD8979494" KeyPath="yes" Source="libs\libgmp-10.dll" />
+                </Component>
+                <Component Id="cmp59FED8A0FDF8547D9EBF2EED46022518" Guid="{E17F30A8-3FE4-40AF-B7A0-2D783821DB5D}">
+                    <File Id="fil80190203C998E0187A73D816849B91C5" KeyPath="yes" Source="libs\libgmpxx-4.dll" />
+                </Component>
+                <Component Id="cmp85FCAD59176D565F6E96F0C5519176B7" Guid="{03CB1B98-85A4-4F8F-86D3-B67303758818}">
+                    <File Id="fil54D596467050D82EA8F6BC7992CA0B02" KeyPath="yes" Source="libs\libgnutls-30.dll" />
+                </Component>
+                <Component Id="cmp3CC9B3CAF253329687D206486EC99BBD" Guid="{3F626F0E-5B9A-433E-99CA-B2E8A2B98C24}">
+                    <File Id="fil870CB7A1F8D4FA34A252886446A59F94" KeyPath="yes" Source="libs\libgnutls-openssl-27.dll" />
+                </Component>
+                <Component Id="cmp710FBBF943BA5481AA6F90BDCAB25707" Guid="{C1C0F7A0-7213-456E-B83C-61BD660AE6C2}">
+                    <File Id="fil803574F760E51E7C9D3E1C95D2E84192" KeyPath="yes" Source="libs\libgnutlsxx-30.dll" />
+                </Component>
+                <Component Id="cmp18464A3A4123129C2169BC8A9002AF1F" Guid="{34025AB4-41EC-47FF-A1B2-3679F237876F}">
+                    <File Id="filAD6548856EC9BF07F810F5011C0F15AA" KeyPath="yes" Source="libs\libgobject-2.0-0.dll" />
+                </Component>
+                <Component Id="cmpC9BB4003D12326771268BF4CB8D1C7DE" Guid="{7B6D58A6-FD03-47E0-9521-D9CA699F0AA2}">
+                    <File Id="fil7201D6CAC04AE7861B49ED81AFAB36A3" KeyPath="yes" Source="libs\libgomp-1.dll" />
+                </Component>
+                <Component Id="cmpFCB3982DA81148542DF38FCD789B8D7E" Guid="{1EB1F5E4-052E-4109-906A-A50887D59FAA}">
+                    <File Id="fil0ACDE5516E5328DCE270745B67C6177A" KeyPath="yes" Source="libs\libgraphene-1.0-0.dll" />
+                </Component>
+                <Component Id="cmp1FA13207011C7183DE4604C47651F8F3" Guid="{AD0A151E-CF90-4E49-AD5B-393EA83BC267}">
+                    <File Id="fil380D9C47D36ACB8B842B5634A8405477" KeyPath="yes" Source="libs\libgraphite2.dll" />
+                </Component>
+                <Component Id="cmp362607ADAB1A13A68E4D98358E2EF3F0" Guid="{5823FD6F-92BA-4CA3-B392-60998830F9A1}">
+                    <File Id="filC19503F8A5A6455CCC7CAB09DF742D2E" KeyPath="yes" Source="libs\libgthread-2.0-0.dll" />
+                </Component>
+                <Component Id="cmp606E479E7054FBE609E43E69711DD2F7" Guid="{3F6AFFC5-09F2-48FE-B74A-B421AEAAAD4A}">
+                    <File Id="fil9FECBB9156504D542175943DF04AA5B2" KeyPath="yes" Source="libs\libgtk-3-0.dll" />
+                </Component>
+                <Component Id="cmpA692B089702B627AA8F14BAF3888807E" Guid="{331F2FA8-EB80-4750-89A3-F931B15E70BD}">
+                    <File Id="filBFDC52A3F10F9D2CBB0F2FE686ABD642" KeyPath="yes" Source="libs\libgtk-4-1.dll" />
+                </Component>
+                <Component Id="cmp407F393ECFE928ABA18B22DB9EA3D456" Guid="{051A1531-98F8-46A0-B2D2-5459371D82D7}">
+                    <File Id="fil67C25646FD9B21E02BBAE47F34D0DEC9" KeyPath="yes" Source="libs\libharfbuzz-0.dll" />
+                </Component>
+                <Component Id="cmpD2483E79E3D9107AF774476A7F7BEAE8" Guid="{67DDAC7F-D18D-493B-BC08-773ACA6147BB}">
+                    <File Id="fil5C0322E57818E0EF407F1BCF70EF12C6" KeyPath="yes" Source="libs\libharfbuzz-gobject-0.dll" />
+                </Component>
+                <Component Id="cmp7FF85B4F8BD5766464B672250777B70A" Guid="{72046104-45C3-498D-AA89-F90416BB5138}">
+                    <File Id="fil17E6C6E0E49F9726452D8E5A90CA7A74" KeyPath="yes" Source="libs\libharfbuzz-subset-0.dll" />
+                </Component>
+                <Component Id="cmp326FA98A9C376560AD80CA89D88A380E" Guid="{C96ACA37-D9DA-4E2F-A733-ED43528A5F54}">
+                    <File Id="fil5C1236BB9CB8705703765A17D18D0E79" KeyPath="yes" Source="libs\libhistory8.dll" />
+                </Component>
+                <Component Id="cmp969FE97079B2AB3F602A5941EFD37052" Guid="{F9C09246-5004-4892-8066-8732A1E6D9FF}">
+                    <File Id="fil73A7192B8A004C53B1433A182590B310" KeyPath="yes" Source="libs\libhogweed-6.dll" />
+                </Component>
+                <Component Id="cmp686E226F5E6213ABF1A844B95C6B0169" Guid="{2183C26F-D13A-490F-804A-B28D3D368C51}">
+                    <File Id="fil26F8C4C90984A2210AF8CAF1E6FB8A98" KeyPath="yes" Source="libs\libiconv-2.dll" />
+                </Component>
+                <Component Id="cmp0359B3624155F0E455A4329C8853B601" Guid="{0055DB48-A961-4B7E-9039-90E9BD8C0B86}">
+                    <File Id="fil9FFBE31E841B0B7C56974C042505E48F" KeyPath="yes" Source="libs\libidn2-0.dll" />
+                </Component>
+                <Component Id="cmpD4772FDD7F060A1D6BC7B79DC70D1910" Guid="{86154889-3758-45C4-A3EE-A59569E475A8}">
+                    <File Id="filA9FCCA17F5EF0D8945A8F4709B8B8DE0" KeyPath="yes" Source="libs\libintl-8.dll" />
+                </Component>
+                <Component Id="cmp7B39DB1023DA1E1AEAA099A7B33FF4F8" Guid="{AA696B99-B176-4E75-A33D-86A5E392C4F1}">
+                    <File Id="fil029D9F3DB309C9D9FF5FB16A6A09D02F" KeyPath="yes" Source="libs\libisl-23.dll" />
+                </Component>
+                <Component Id="cmp1E4F485E1FBAF95A61E116B0C316066A" Guid="{3BE63BA3-3166-4BB2-92C4-9511B6549CC9}">
+                    <File Id="fil781D9289223E082EA174C8A286472005" KeyPath="yes" Source="libs\libjbig-0.dll" />
+                </Component>
+                <Component Id="cmp42C8E9DC5A7EA4B1EB28EB77938F1750" Guid="{12FDCF32-BA1D-42CB-8D33-80A00036DA22}">
+                    <File Id="fil4A7A8F116F898185430E9BFE5F9326F2" KeyPath="yes" Source="libs\libjpeg-8.dll" />
+                </Component>
+                <Component Id="cmpA191B5E058B4BB809637E6A75FB0C9EE" Guid="{37A0E1EA-3B97-4538-87A5-1639EAC57351}">
+                    <File Id="filB62591B78AC4CDD855FEF00B0F3E8242" KeyPath="yes" Source="libs\libjson-glib-1.0-0.dll" />
+                </Component>
+                <Component Id="cmpA4D0D1B24228C23B76208834BCF37E45" Guid="{366DC076-4085-4770-AC5E-37A246F0DC0B}">
+                    <File Id="fil0321E3F9142ECC93CCF889E055E571E7" KeyPath="yes" Source="libs\libLerc.dll" />
+                </Component>
+                <Component Id="cmpEB3B8F11A94D007CA946782812460BE8" Guid="{D555FD13-8937-44FD-BBA9-1FE773C796AB}">
+                    <File Id="fil978BD4F6319C3C4523C5DBEB3A710016" KeyPath="yes" Source="libs\liblzma-5.dll" />
+                </Component>
+                <Component Id="cmp1779CFB303BD5F15D36B4969B35322A7" Guid="{DD433350-6536-43CF-87B5-EF65DB775BD3}">
+                    <File Id="fil67B3B70321F11D8E1B44737D17E87144" KeyPath="yes" Source="libs\liblzo2-2.dll" />
+                </Component>
+                <Component Id="cmp472B8FF5F1C8E1784C7A348CA6E31333" Guid="{F32D2A9C-C9A5-4A1A-8A8A-58288A658C47}">
+                    <File Id="filD3EE4148321C1041A1E5B58C94F554CC" KeyPath="yes" Source="libs\libmenuw6.dll" />
+                </Component>
+                <Component Id="cmpF5CDAE217DF7DABAE85C034D7F0A04DA" Guid="{5F1D227F-FC76-456E-9344-4848A144AC4A}">
+                    <File Id="fil08A5D5A7320C345992A5501BE5B6A79F" KeyPath="yes" Source="libs\libmpc-3.dll" />
+                </Component>
+                <Component Id="cmp60CBC3FFFA724385B255F53A43FFA5C5" Guid="{DADE0C4D-BFDD-4144-9573-FA3A282831FC}">
+                    <File Id="fil5227F9D1154F0CC433133414B11D56B5" KeyPath="yes" Source="libs\libmpdec++-4.dll" />
+                </Component>
+                <Component Id="cmpD51AF8A462FDEF2DC3EB722F9806D6C8" Guid="{33D0AF50-C036-41DB-A850-EA00A8FA8753}">
+                    <File Id="filA9E82218C1122A87554AE880A129DAC1" KeyPath="yes" Source="libs\libmpdec-4.dll" />
+                </Component>
+                <Component Id="cmp62616A4437FD0467F1DBD1E9ED7474D9" Guid="{0FCE5FEC-7C4C-4469-BB40-BB75A0EE3FF6}">
+                    <File Id="fil2E94F568B769745C5AB6F53DC86CA04F" KeyPath="yes" Source="libs\libmpfr-6.dll" />
+                </Component>
+                <Component Id="cmp53083F5DD6A3D9867590F1EA1CB763FE" Guid="{62C005B0-E87E-4434-98C3-2C28BB9E5460}">
+                    <File Id="filBA27449740A21B3322CD8883998692CC" KeyPath="yes" Source="libs\libncurses++w6.dll" />
+                </Component>
+                <Component Id="cmpC32FBA4B757A2E2E156DF6F304E3FD5F" Guid="{6F89C038-4C1A-40BD-AA2C-80BA025815AE}">
+                    <File Id="filB81DF2F925B452B652E240B3E7DBB083" KeyPath="yes" Source="libs\libncursesw6.dll" />
+                </Component>
+                <Component Id="cmpB0A7377952FD178DA640FCB6D6B80B74" Guid="{1C70D1CC-67DF-4985-8CB1-80ECA7536E5A}">
+                    <File Id="filB303C4D4D24D9809F39BB52ADB5EED12" KeyPath="yes" Source="libs\libnettle-8.dll" />
+                </Component>
+                <Component Id="cmp453024EDEC2C02DD5440FD0BACD6FA10" Guid="{88A1ADAA-963A-451C-8E01-E967C8F8D599}">
+                    <File Id="fil4122AEC4B234BB7047A4FE01E5C19755" KeyPath="yes" Source="libs\libnghttp2-14.dll" />
+                </Component>
+                <Component Id="cmp583D13F955C1ECE983E19CE780BE8904" Guid="{46A66D58-491E-47E6-A0C6-D4591042657E}">
+                    <File Id="filADEAF391378551A9920DE6B4969056B3" KeyPath="yes" Source="libs\libnghttp3-9.dll" />
+                </Component>
+                <Component Id="cmp3068374D7B4C77AC058D38E43A23E17F" Guid="{82C284FE-4F5C-4C1C-A8D5-8D6AEB511694}">
+                    <File Id="fil735E85FFF2CF701BC530671B0D521D4D" KeyPath="yes" Source="libs\libngtcp2-16.dll" />
+                </Component>
+                <Component Id="cmp9D42B31B57607BBAE757B641C9B6FE19" Guid="{D79BBA92-FF8A-457D-8A9C-79F242B1A9F8}">
+                    <File Id="fil6E9D6AA37E6FF4BF5355CA5F504371DC" KeyPath="yes" Source="libs\libngtcp2_crypto_gnutls-8.dll" />
+                </Component>
+                <Component Id="cmp96DEFF5600D2A31E564009C1DAA28A34" Guid="{60F67E30-9F09-4A7E-8AD6-86B77AE2BCE4}">
+                    <File Id="fil11C08E5974B7C48B7439CA515D339C17" KeyPath="yes" Source="libs\libngtcp2_crypto_ossl.dll" />
+                </Component>
+                <Component Id="cmpFE2A2D06F178B84C9272DFC4BC45FF98" Guid="{9BC730A8-0FC0-4AD6-A11D-8FDAC07895B0}">
+                    <File Id="fil11D9ECD3B008CC844ECEA6D06B1BE7E0" KeyPath="yes" Source="libs\libp11-kit-0.dll" />
+                </Component>
+                <Component Id="cmp2AD2708F6DD944B705EDC26012337F75" Guid="{40323F0E-EACB-4A8A-A9C2-54D7401767AB}">
+                    <File Id="fil53F0FB113A5A683F398D5775D23D98C6" KeyPath="yes" Source="libs\libpanelw6.dll" />
+                </Component>
+                <Component Id="cmp72A44108BA31B8FE93023524D11C04B7" Guid="{4DEB0132-4CB4-4C2D-BB63-FD20B82DBF3C}">
+                    <File Id="filCFAE134506AB38280E2A6F4183A8F4EF" KeyPath="yes" Source="libs\libpango-1.0-0.dll" />
+                </Component>
+                <Component Id="cmp57BF59BCA290982AB9FD95626662B502" Guid="{DF7C9583-B9AD-42E1-B25B-4ECA8737BB68}">
+                    <File Id="fil31446FA6F772FC1B77ECAED3B7C35F7C" KeyPath="yes" Source="libs\libpangocairo-1.0-0.dll" />
+                </Component>
+                <Component Id="cmp8B245E1A87E68B4935F2965CAECE69A0" Guid="{38196DCC-AE97-40FE-88A6-6BDF91574974}">
+                    <File Id="filF7D055E445365F18C338C76B9918ADA9" KeyPath="yes" Source="libs\libpangoft2-1.0-0.dll" />
+                </Component>
+                <Component Id="cmpB2C2DF1A02F90616B046BC907435F914" Guid="{B9A9B006-F690-4CD2-92C8-B9BF006A468D}">
+                    <File Id="filD9E54069B02DA39BDE334EEBD37CB60F" KeyPath="yes" Source="libs\libpangowin32-1.0-0.dll" />
+                </Component>
+                <Component Id="cmpDA7A28556D22B45FA3EAAFA3F03EF34A" Guid="{19DD9087-3D94-4206-9D2B-85E53C45AE36}">
+                    <File Id="fil9EB820804AF88D4C9A375406B3889AC0" KeyPath="yes" Source="libs\libpcre2-16-0.dll" />
+                </Component>
+                <Component Id="cmp5ED3768C53AAE2D798E8DBBB570C04C1" Guid="{A788004B-E82E-4BEA-AE29-F3DCA7D57A16}">
+                    <File Id="filF08E79C7A1C6BC9C69EF53EF24CCB8A9" KeyPath="yes" Source="libs\libpcre2-32-0.dll" />
+                </Component>
+                <Component Id="cmpF5FADD5F70BECFDB627321AC5592986A" Guid="{D41B9E46-02D5-474E-BB4F-3E73FB8FBDA7}">
+                    <File Id="fil76E622CF778A921CAA87A437A49A8B6D" KeyPath="yes" Source="libs\libpcre2-8-0.dll" />
+                </Component>
+                <Component Id="cmp978E3967A6DDC9296746A7397D9826C4" Guid="{044EB4E5-8A32-488A-B504-E39C41A29114}">
+                    <File Id="fil0832D71425E47E9B5F80863AE7D0FCDB" KeyPath="yes" Source="libs\libpcre2-posix-3.dll" />
+                </Component>
+                <Component Id="cmp6DFE1DB7978CD7C52457C3C708DB20BD" Guid="{41068E76-B8C0-4C47-87E2-6B7DFD3EDC3F}">
+                    <File Id="filA44835D5CBE8216D5A99C90DD344DE9B" KeyPath="yes" Source="libs\libpixman-1-0.dll" />
+                </Component>
+                <Component Id="cmp98865A90B5B33D971E7812F598B087D3" Guid="{247BAB75-1343-4810-87AC-D46DF82A3C2A}">
+                    <File Id="fil2F6CE58936DA1DA9DAABB1B06EA8B26B" KeyPath="yes" Source="libs\libpng16-16.dll" />
+                </Component>
+                <Component Id="cmp124A23DFE2E4B8ADF147224D13836124" Guid="{7B2C7A73-AC17-451C-BEBA-7DAEFFBDDFBE}">
+                    <File Id="filCB16A62DD2E91EEABCAA4E852544E8C3" KeyPath="yes" Source="libs\libpsl-5.dll" />
+                </Component>
+                <Component Id="cmpBF72DEA73B65609AE539A1A79E72BA66" Guid="{32977841-0EFC-43B4-9BB7-5EF372D1A928}">
+                    <File Id="fil58AB70EFE02FEFFA6617C43390D9D738" KeyPath="yes" Source="libs\libpython3.12.dll" />
+                </Component>
+                <Component Id="cmpE6E2DF08416540179836D68A0EEF679E" Guid="{96B76DE7-D563-493C-9940-8CA4C581C8CA}">
+                    <File Id="fil00EA128E3F2A10C60932F8B74D4D34A4" KeyPath="yes" Source="libs\libpython3.dll" />
+                </Component>
+                <Component Id="cmp602BE69A849D00E77998B2198BB579C2" Guid="{37557F4A-FB54-4DDF-89AB-757E9C2ED74B}">
+                    <File Id="fil4F666D171A29A5B860019E74EA378F33" KeyPath="yes" Source="libs\libquadmath-0.dll" />
+                </Component>
+                <Component Id="cmpDA6E451CB2A1C32508F44D99E2765634" Guid="{70C096A5-85C4-4D68-9A36-57556CDA057C}">
+                    <File Id="filF0D7555ADFED4E7CB70482C587FE0E17" KeyPath="yes" Source="libs\libreadline8.dll" />
+                </Component>
+                <Component Id="cmp2C5F80CAFCC17B82E731ED57BB341047" Guid="{A435F5E1-4054-4CED-AD65-3367D37AA07E}">
+                    <File Id="fil51758E9005A2471E4D1EC2968110610E" KeyPath="yes" Source="libs\librsvg-2-2.dll" />
+                </Component>
+                <Component Id="cmp9347F8DA548D4C09D51B907A5570BF8F" Guid="{5B8A777C-6EC7-47E5-A682-613A5E9D7C22}">
+                    <File Id="fil82621E2579FCF28E25ADCA6AF5D24608" KeyPath="yes" Source="libs\libsharpyuv-0.dll" />
+                </Component>
+                <Component Id="cmp44670A3BCDDA62DB5CD9D07685413C86" Guid="{FB8686A2-7A31-46C0-B883-6242527A4030}">
+                    <File Id="fil12616A8FD2368797C41430F573CC9F3C" KeyPath="yes" Source="libs\libSPIRV-Tools-diff.dll" />
+                </Component>
+                <Component Id="cmp0C1177BD48D03E1B3E25CDAAAD01FC4D" Guid="{D5B030DF-0763-4A8C-B3D8-2B0ADEB4E66B}">
+                    <File Id="fil56A190AFB601DEED7FE2C38D07457E4A" KeyPath="yes" Source="libs\libSPIRV-Tools-link.dll" />
+                </Component>
+                <Component Id="cmp000F1613A3C26A0DB0EA223FEF77A698" Guid="{839B0AE7-E7FA-4AFD-8EDE-4CA431A0619A}">
+                    <File Id="fil7CCA427A8C513E4C3639789A56D82ABC" KeyPath="yes" Source="libs\libSPIRV-Tools-lint.dll" />
+                </Component>
+                <Component Id="cmp7381976D3436961A37FAB480E9241666" Guid="{4B6AA2B2-6F53-4DB3-BC00-85A2955FB7A9}">
+                    <File Id="filA8EB5AE610EC8CBE463749FF50C219DA" KeyPath="yes" Source="libs\libSPIRV-Tools-opt.dll" />
+                </Component>
+                <Component Id="cmp27059B9F9045AD3EF59080B609940E8D" Guid="{DA45FFBA-2D7D-4C31-837E-1DFF73F8D5C5}">
+                    <File Id="filDE1FA9359AF72A1CD8CC60CE3972E4AC" KeyPath="yes" Source="libs\libSPIRV-Tools-reduce.dll" />
+                </Component>
+                <Component Id="cmp971854E00E52ED1A565606CA66271632" Guid="{D22D7DB8-43C9-47A5-AFC0-BBFC0C453C8F}">
+                    <File Id="fil97FCBFBE1453A02C7FC6EDD0567862C5" KeyPath="yes" Source="libs\libSPIRV-Tools-shared.dll" />
+                </Component>
+                <Component Id="cmp47294BD45F203545DD28C67D2C43F7EC" Guid="{81B2B11D-EFB1-4ACC-B5F3-FE2B3B0514E1}">
+                    <File Id="fil2769A4B6478FCBBECA509D07AEC27084" KeyPath="yes" Source="libs\libSPIRV-Tools.dll" />
+                </Component>
+                <Component Id="cmp1E17BF1448926070D5D97EF7A4C5C814" Guid="{539A9761-D5A3-42E5-B289-AF99EFD49F7A}">
+                    <File Id="fil6E6773C0F80D3EB84AF02A5D95CDC609" KeyPath="yes" Source="libs\libsqlite3-0.dll" />
+                </Component>
+                <Component Id="cmp7DC6840B8DB9E0D411948C54EC4B652B" Guid="{EB543698-F73A-4A68-B492-112B03574653}">
+                    <File Id="filE30E1CD4BCED7184EBE008F8F42868B6" KeyPath="yes" Source="libs\libssh2-1.dll" />
+                </Component>
+                <Component Id="cmpF6F379638447A617B095218175290ACC" Guid="{564987ED-F8E7-4172-ACA5-78AA1E24D708}">
+                    <File Id="filC325D78C341DB26BEE036FC801B514F1" KeyPath="yes" Source="libs\libssl-3-x64.dll" />
+                </Component>
+                <Component Id="cmp7D21D1C82F39D17AE84603022127A288" Guid="{D90A0EC4-9108-4529-A6BB-700EAA1A8E92}">
+                    <File Id="fil3E0719D803EE64915B6730E0972BA3D6" KeyPath="yes" Source="libs\libstdc++-6.dll" />
+                </Component>
+                <Component Id="cmp5DBA6E310CCE718423561BAB26FDF4B2" Guid="{8BBA71A0-E15E-41C8-B998-751FAD77066A}">
+                    <File Id="fil5CABE3A29052CD44D4C8C1670B079003" KeyPath="yes" Source="libs\libsystre-0.dll" />
+                </Component>
+                <Component Id="cmpB2F073E91C4CD771831E176A5BA2C186" Guid="{170B9EDA-39D0-4CD8-B327-70B75BEDFDE4}">
+                    <File Id="filB55438ECFCB0B4B06513E59F8F8742F4" KeyPath="yes" Source="libs\libtasn1-6.dll" />
+                </Component>
+                <Component Id="cmpA6494BBB73F003840926487CA69C226A" Guid="{621BE1D6-378B-47BF-90B6-77638DD5BDF7}">
+                    <File Id="filFF63646E9B58ADEDBCCBCCF9EE1C76E7" KeyPath="yes" Source="libs\libtermcap-0.dll" />
+                </Component>
+                <Component Id="cmp9992BCBFA2AB39FD948D99F2F59ABD47" Guid="{B3F6F831-27AF-4F16-88EC-5BF02BAE293F}">
+                    <File Id="filE3C9EA70C0F8593686FC6E8653FAB875" KeyPath="yes" Source="libs\libthai-0.dll" />
+                </Component>
+                <Component Id="cmp7658C430AEDF7F86E50BEB7F7FCCEE85" Guid="{8D20CFA9-E156-4657-9AEB-A53ACD7F6B11}">
+                    <File Id="fil4C3A97AD2B60C68A96061E330F5DFE49" KeyPath="yes" Source="libs\libtiff-6.dll" />
+                </Component>
+                <Component Id="cmpC7BB14A2C4572232CCCE0CB59D1B20CB" Guid="{FB30573F-CCA8-4CF6-9B62-45F84BB4234C}">
+                    <File Id="fil76805CB327E69F27326F3364FB1A1D73" KeyPath="yes" Source="libs\libtiffxx-6.dll" />
+                </Component>
+                <Component Id="cmp93EA5C59F1A701C6F7D0D22E8BA36BF7" Guid="{9408A28C-C175-475F-9F4C-3DC6B69EDDCE}">
+                    <File Id="fil1ECB5FA1AF3391CABA7EE779DEF61E0E" KeyPath="yes" Source="libs\libtre-5.dll" />
+                </Component>
+                <Component Id="cmp053A5C2AB8F843634DB17003AEFF51BA" Guid="{B72BE862-969C-4B88-B618-9A61D43B9394}">
+                    <File Id="fil193BE4CD99EC330846DAEFC67EB3B6C2" KeyPath="yes" Source="libs\libturbojpeg.dll" />
+                </Component>
+                <Component Id="cmp5AB804F05CE1DF3EE27AAFFA04F0BDA6" Guid="{75973B3C-DFD3-4EE9-8D49-20ED04962DAF}">
+                    <File Id="fil6C4A27A9CE0C6D8F68E89D089D705371" KeyPath="yes" Source="libs\libunistring-5.dll" />
+                </Component>
+                <Component Id="cmpA1DC6BFDDA3DABD3E1A239EE498E0C41" Guid="{A5A36FE0-4490-4B2A-BFF1-3CDB082EE887}">
+                    <File Id="fil49D71BF883409A8EF645097F9A94F40B" KeyPath="yes" Source="libs\libwebp-7.dll" />
+                </Component>
+                <Component Id="cmp6B32AAE62D4473FB0857F24DCC30465C" Guid="{3395D72B-2A37-439A-8393-78DE03C42598}">
+                    <File Id="filCB00F06EC8A1649E7988F005FB9069F6" KeyPath="yes" Source="libs\libwebpdecoder-3.dll" />
+                </Component>
+                <Component Id="cmpE32883DF3926E1265318F105E80F24B1" Guid="{5C70F3EF-696F-4D90-9EF7-9B5AF8A4C12A}">
+                    <File Id="fil381FDF47F83C4388B390ED5B00A44876" KeyPath="yes" Source="libs\libwebpdemux-2.dll" />
+                </Component>
+                <Component Id="cmpACFF5C1FC82FAE9F6E2B30168F594541" Guid="{AA065416-A636-429D-B864-971139D91508}">
+                    <File Id="fil0029CAEE09BBCE018E7B31923EE9E8F9" KeyPath="yes" Source="libs\libwebpmux-3.dll" />
+                </Component>
+                <Component Id="cmp7A1B2C147DD46A2F84DCCE6C6A31D8B7" Guid="{3C7C2A79-7BC3-45A4-9890-303055B65D7B}">
+                    <File Id="fil8195CB21079C67CD82261CBC06BCEEA4" KeyPath="yes" Source="libs\libwinpthread-1.dll" />
+                </Component>
+                <Component Id="cmpE60D49C4F148F8FD6270049FA7488020" Guid="{5F950BC7-B6EF-4D05-A478-F2D6A7D754C5}">
+                    <File Id="filA783C3E6BA99492F9751F6FD03D0FD57" KeyPath="yes" Source="libs\libxml2-2.dll" />
+                </Component>
+                <Component Id="cmpEEB61F055F6C006B320BE23F2341FAAF" Guid="{6AE963A3-CCF8-48FF-AD9E-64B8175F9E4C}">
+                    <File Id="filCFE04BD42A7EBF81E608ED75D18C6CBC" KeyPath="yes" Source="libs\libxmlb-2.dll" />
+                </Component>
+                <Component Id="cmpA8EF5E0F0DEFED795EAB07C49E7A273F" Guid="{C35FBFB7-5B20-482E-A676-B257D35D03DA}">
+                    <File Id="fil10BBD6C08E9C3ABED0633C3AA6543F2D" KeyPath="yes" Source="libs\libxxhash.dll" />
+                </Component>
+                <Component Id="cmp81F26521A80FD74FB5132154C3D9E366" Guid="{C97D165B-D267-4F2B-B179-9F0B6ECB3EBB}">
+                    <File Id="filBC2CA6EDDBC7A3312B536453AC4B9A18" KeyPath="yes" Source="libs\libyaml-0-2.dll" />
+                </Component>
+                <Component Id="cmp58B18F0D28C9676882709AA2D0A15F70" Guid="{6D7A799C-2CBF-49A6-A8DE-B1EF1F68313F}">
+                    <File Id="filAB454FC873F04D56CE77312A13608F54" KeyPath="yes" Source="libs\libzstd.dll" />
+                </Component>
+                <Component Id="cmp8589597CAAF9B7EB220DB9BDC0118DF7" Guid="{15B2FBF7-76F8-48AA-993E-DFDEF1972732}">
+                    <File Id="filF03358D0CED4F0B7855D86F3A99B8525" KeyPath="yes" Source="libs\tcl86.dll" />
+                </Component>
+                <Component Id="cmp7CCC7E2F416CE0A489D963D81C16A302" Guid="{44E5FEC0-9448-4519-B797-121F2C6ECFEF}">
+                    <File Id="fil5405D7D80F08BD2B6A5A4F2FB80D5149" KeyPath="yes" Source="libs\tk86.dll" />
+                </Component>
+                <Component Id="cmpCAA57DC80548F485E8583FBD7A22C7E8" Guid="{311A52F9-C198-4924-B5B3-B1C40D3F759A}">
+                    <File Id="filAE6279822D778C83C1E67F41AAF9F965" KeyPath="yes" Source="libs\VkLayer_khronos_validation.dll" />
+                </Component>
+                <Component Id="cmpABBEB24A9CD5A0316630702531106B1B" Guid="{20191907-B47D-486B-ABE1-7BB433DC94C1}">
+                    <File Id="filD087A06F33B79A216E7ADEBBF308FA2D" KeyPath="yes" Source="libs\vulkan-1.dll" />
+                </Component>
+                <Component Id="cmp77F13DF7867B0A1EB27AB9E1E2ED5A24" Guid="{2590242B-A251-4B33-B4FD-611E894A3464}">
+                    <File Id="filB73CE2423F3DE08937D305B4369E46A8" KeyPath="yes" Source="libs\zlib1.dll" />
+                </Component>
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <ComponentGroup Id="LibsGroup">
+            <ComponentRef Id="cmpB968811B4B1DA6B96764D4A97EAB9C6A" />
+            <ComponentRef Id="cmp9C067A045A6ADBFC162B2580EBC14F82" />
+            <ComponentRef Id="cmp86A0BE686595EF7BB996629F8BFA6BDE" />
+            <ComponentRef Id="cmp5A2F77CA223E64C0A9CEB39D1F534F92" />
+            <ComponentRef Id="cmp74BB78C4C5642DC0F7E63768E88F8EC5" />
+            <ComponentRef Id="cmp4CCFFAABF415BF4DAF8104BEE1E46F1F" />
+            <ComponentRef Id="cmp82DC87F3CC3D4E92115235E25B8D3A36" />
+            <ComponentRef Id="cmp6B99567EA3AA27238361CB473B8EA7C1" />
+            <ComponentRef Id="cmp1B6D9CB88E4136DB44756FD2D25AEA16" />
+            <ComponentRef Id="cmp6559E6A6ECBEAD1A7CF5ABBBA644E10E" />
+            <ComponentRef Id="cmp129A06CC62DF84794424D16E22F422D2" />
+            <ComponentRef Id="cmp2982348DD6497D8A0B545E8A9AB3B743" />
+            <ComponentRef Id="cmp95A4221566E4484C9B8F10E15FE127B2" />
+            <ComponentRef Id="cmp46769BD7EB7DC1EA754B10C4758D4034" />
+            <ComponentRef Id="cmp80D0AC0943621BB63705C15185F082C0" />
+            <ComponentRef Id="cmpB7F8887198AC4C53B9A7280542DE9233" />
+            <ComponentRef Id="cmp9ADD721C42306DE000A9955832558FAC" />
+            <ComponentRef Id="cmpB050EA478273B3C7A2823018838C73F0" />
+            <ComponentRef Id="cmpB927CAF0FE8D9F20154E71E18A176628" />
+            <ComponentRef Id="cmpCDC3F9AF6268864019CDEF0DA48EA774" />
+            <ComponentRef Id="cmpCD6DF080F7ABBA78B701317E26478D0B" />
+            <ComponentRef Id="cmpE2D87DEBBC6D2ED374541F1A06BA6E3C" />
+            <ComponentRef Id="cmp87EFE5D05A8ACA4721BCDEEEEE76201D" />
+            <ComponentRef Id="cmp032F15ACE1A0DF63BBB2949526E9374E" />
+            <ComponentRef Id="cmp3E21B2CEF4B20BE8F7E496A3B86CA0AD" />
+            <ComponentRef Id="cmp3BAD3C281AA116E2A8AD44B138B08A2B" />
+            <ComponentRef Id="cmp9FCDACD60DD7B8363D2D78627EF298F9" />
+            <ComponentRef Id="cmpB793C3768AA72CA7DD62C29C1897CEEB" />
+            <ComponentRef Id="cmp48FE4AD4D39E700594CB2C8B49769F15" />
+            <ComponentRef Id="cmp9CA16335339AE1647F2E90B74A969FD7" />
+            <ComponentRef Id="cmp23B759E938A4E027529A3706F0E6C691" />
+            <ComponentRef Id="cmpAE20D6E82C11354A5CD6188442EEF1FF" />
+            <ComponentRef Id="cmp738465F0420BE461DA0D257968A9DEA3" />
+            <ComponentRef Id="cmp1595969B1EF4989A7E87492889DC598D" />
+            <ComponentRef Id="cmpCD67690762AD9EBA403A9581CD66B72A" />
+            <ComponentRef Id="cmpEBBF2783B32CCA850817EE30CA0301AF" />
+            <ComponentRef Id="cmp59FED8A0FDF8547D9EBF2EED46022518" />
+            <ComponentRef Id="cmp85FCAD59176D565F6E96F0C5519176B7" />
+            <ComponentRef Id="cmp3CC9B3CAF253329687D206486EC99BBD" />
+            <ComponentRef Id="cmp710FBBF943BA5481AA6F90BDCAB25707" />
+            <ComponentRef Id="cmp18464A3A4123129C2169BC8A9002AF1F" />
+            <ComponentRef Id="cmpC9BB4003D12326771268BF4CB8D1C7DE" />
+            <ComponentRef Id="cmpFCB3982DA81148542DF38FCD789B8D7E" />
+            <ComponentRef Id="cmp1FA13207011C7183DE4604C47651F8F3" />
+            <ComponentRef Id="cmp362607ADAB1A13A68E4D98358E2EF3F0" />
+            <ComponentRef Id="cmp606E479E7054FBE609E43E69711DD2F7" />
+            <ComponentRef Id="cmpA692B089702B627AA8F14BAF3888807E" />
+            <ComponentRef Id="cmp407F393ECFE928ABA18B22DB9EA3D456" />
+            <ComponentRef Id="cmpD2483E79E3D9107AF774476A7F7BEAE8" />
+            <ComponentRef Id="cmp7FF85B4F8BD5766464B672250777B70A" />
+            <ComponentRef Id="cmp326FA98A9C376560AD80CA89D88A380E" />
+            <ComponentRef Id="cmp969FE97079B2AB3F602A5941EFD37052" />
+            <ComponentRef Id="cmp686E226F5E6213ABF1A844B95C6B0169" />
+            <ComponentRef Id="cmp0359B3624155F0E455A4329C8853B601" />
+            <ComponentRef Id="cmpD4772FDD7F060A1D6BC7B79DC70D1910" />
+            <ComponentRef Id="cmp7B39DB1023DA1E1AEAA099A7B33FF4F8" />
+            <ComponentRef Id="cmp1E4F485E1FBAF95A61E116B0C316066A" />
+            <ComponentRef Id="cmp42C8E9DC5A7EA4B1EB28EB77938F1750" />
+            <ComponentRef Id="cmpA191B5E058B4BB809637E6A75FB0C9EE" />
+            <ComponentRef Id="cmpA4D0D1B24228C23B76208834BCF37E45" />
+            <ComponentRef Id="cmpEB3B8F11A94D007CA946782812460BE8" />
+            <ComponentRef Id="cmp1779CFB303BD5F15D36B4969B35322A7" />
+            <ComponentRef Id="cmp472B8FF5F1C8E1784C7A348CA6E31333" />
+            <ComponentRef Id="cmpF5CDAE217DF7DABAE85C034D7F0A04DA" />
+            <ComponentRef Id="cmp60CBC3FFFA724385B255F53A43FFA5C5" />
+            <ComponentRef Id="cmpD51AF8A462FDEF2DC3EB722F9806D6C8" />
+            <ComponentRef Id="cmp62616A4437FD0467F1DBD1E9ED7474D9" />
+            <ComponentRef Id="cmp53083F5DD6A3D9867590F1EA1CB763FE" />
+            <ComponentRef Id="cmpC32FBA4B757A2E2E156DF6F304E3FD5F" />
+            <ComponentRef Id="cmpB0A7377952FD178DA640FCB6D6B80B74" />
+            <ComponentRef Id="cmp453024EDEC2C02DD5440FD0BACD6FA10" />
+            <ComponentRef Id="cmp583D13F955C1ECE983E19CE780BE8904" />
+            <ComponentRef Id="cmp3068374D7B4C77AC058D38E43A23E17F" />
+            <ComponentRef Id="cmp9D42B31B57607BBAE757B641C9B6FE19" />
+            <ComponentRef Id="cmp96DEFF5600D2A31E564009C1DAA28A34" />
+            <ComponentRef Id="cmpFE2A2D06F178B84C9272DFC4BC45FF98" />
+            <ComponentRef Id="cmp2AD2708F6DD944B705EDC26012337F75" />
+            <ComponentRef Id="cmp72A44108BA31B8FE93023524D11C04B7" />
+            <ComponentRef Id="cmp57BF59BCA290982AB9FD95626662B502" />
+            <ComponentRef Id="cmp8B245E1A87E68B4935F2965CAECE69A0" />
+            <ComponentRef Id="cmpB2C2DF1A02F90616B046BC907435F914" />
+            <ComponentRef Id="cmpDA7A28556D22B45FA3EAAFA3F03EF34A" />
+            <ComponentRef Id="cmp5ED3768C53AAE2D798E8DBBB570C04C1" />
+            <ComponentRef Id="cmpF5FADD5F70BECFDB627321AC5592986A" />
+            <ComponentRef Id="cmp978E3967A6DDC9296746A7397D9826C4" />
+            <ComponentRef Id="cmp6DFE1DB7978CD7C52457C3C708DB20BD" />
+            <ComponentRef Id="cmp98865A90B5B33D971E7812F598B087D3" />
+            <ComponentRef Id="cmp124A23DFE2E4B8ADF147224D13836124" />
+            <ComponentRef Id="cmpBF72DEA73B65609AE539A1A79E72BA66" />
+            <ComponentRef Id="cmpE6E2DF08416540179836D68A0EEF679E" />
+            <ComponentRef Id="cmp602BE69A849D00E77998B2198BB579C2" />
+            <ComponentRef Id="cmpDA6E451CB2A1C32508F44D99E2765634" />
+            <ComponentRef Id="cmp2C5F80CAFCC17B82E731ED57BB341047" />
+            <ComponentRef Id="cmp9347F8DA548D4C09D51B907A5570BF8F" />
+            <ComponentRef Id="cmp44670A3BCDDA62DB5CD9D07685413C86" />
+            <ComponentRef Id="cmp0C1177BD48D03E1B3E25CDAAAD01FC4D" />
+            <ComponentRef Id="cmp000F1613A3C26A0DB0EA223FEF77A698" />
+            <ComponentRef Id="cmp7381976D3436961A37FAB480E9241666" />
+            <ComponentRef Id="cmp27059B9F9045AD3EF59080B609940E8D" />
+            <ComponentRef Id="cmp971854E00E52ED1A565606CA66271632" />
+            <ComponentRef Id="cmp47294BD45F203545DD28C67D2C43F7EC" />
+            <ComponentRef Id="cmp1E17BF1448926070D5D97EF7A4C5C814" />
+            <ComponentRef Id="cmp7DC6840B8DB9E0D411948C54EC4B652B" />
+            <ComponentRef Id="cmpF6F379638447A617B095218175290ACC" />
+            <ComponentRef Id="cmp7D21D1C82F39D17AE84603022127A288" />
+            <ComponentRef Id="cmp5DBA6E310CCE718423561BAB26FDF4B2" />
+            <ComponentRef Id="cmpB2F073E91C4CD771831E176A5BA2C186" />
+            <ComponentRef Id="cmpA6494BBB73F003840926487CA69C226A" />
+            <ComponentRef Id="cmp9992BCBFA2AB39FD948D99F2F59ABD47" />
+            <ComponentRef Id="cmp7658C430AEDF7F86E50BEB7F7FCCEE85" />
+            <ComponentRef Id="cmpC7BB14A2C4572232CCCE0CB59D1B20CB" />
+            <ComponentRef Id="cmp93EA5C59F1A701C6F7D0D22E8BA36BF7" />
+            <ComponentRef Id="cmp053A5C2AB8F843634DB17003AEFF51BA" />
+            <ComponentRef Id="cmp5AB804F05CE1DF3EE27AAFFA04F0BDA6" />
+            <ComponentRef Id="cmpA1DC6BFDDA3DABD3E1A239EE498E0C41" />
+            <ComponentRef Id="cmp6B32AAE62D4473FB0857F24DCC30465C" />
+            <ComponentRef Id="cmpE32883DF3926E1265318F105E80F24B1" />
+            <ComponentRef Id="cmpACFF5C1FC82FAE9F6E2B30168F594541" />
+            <ComponentRef Id="cmp7A1B2C147DD46A2F84DCCE6C6A31D8B7" />
+            <ComponentRef Id="cmpE60D49C4F148F8FD6270049FA7488020" />
+            <ComponentRef Id="cmpEEB61F055F6C006B320BE23F2341FAAF" />
+            <ComponentRef Id="cmpA8EF5E0F0DEFED795EAB07C49E7A273F" />
+            <ComponentRef Id="cmp81F26521A80FD74FB5132154C3D9E366" />
+            <ComponentRef Id="cmp58B18F0D28C9676882709AA2D0A15F70" />
+            <ComponentRef Id="cmp8589597CAAF9B7EB220DB9BDC0118DF7" />
+            <ComponentRef Id="cmp7CCC7E2F416CE0A489D963D81C16A302" />
+            <ComponentRef Id="cmpCAA57DC80548F485E8583FBD7A22C7E8" />
+            <ComponentRef Id="cmpABBEB24A9CD5A0316630702531106B1B" />
+            <ComponentRef Id="cmp77F13DF7867B0A1EB27AB9E1E2ED5A24" />
+        </ComponentGroup>
+    </Fragment>
+</Wix>

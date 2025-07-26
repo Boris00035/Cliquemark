@@ -88,6 +88,33 @@
         <Directory Id='TARGETDIR' Name='SourceDir'>
             <Directory Id='$(var.PlatformProgramFilesFolder)' Name='PFiles'>
                 <Directory Id='APPLICATIONFOLDER' Name='watermarklyGtk'>
+
+                <Component Id="GSettingsEnvVar" Guid="*">
+                  <Environment
+                    Id="GSETTINGS_SCHEMA_DIR"
+                    Name="GSETTINGS_SCHEMA_DIR"
+                    Value="[APPLICATIONFOLDER]share\glib-2.0\schemas"
+                    Permanent="no"
+                    Part="last"
+                    Action="set"
+                    System="yes" />
+                  <RegistryValue Root="HKLM" Key="SOFTWARE\watermarklyGtk" Name="Installed" Type="integer" Value="1" KeyPath="yes"/>
+                </Component>
+
+                  <Directory Id="ShareFolder" Name="share">
+                    <Directory Id="GlibFolder" Name="glib-2.0">
+                      <Directory Id="SchemasFolder" Name="schemas">
+                        <Component Id="GSettingsSchemaComponent" Guid="*">
+                          <File
+                            Id="GSettingsSchemaFile"
+                            Name="gschemas.compiled"
+                            DiskId="1"
+                            Source="schema_files/gschemas.compiled"
+                            KeyPath="yes"/>
+                        </Component>
+                      </Directory>
+                  </Directory>
+                </Directory>
                     
                     <!--
                       Enabling the license sidecar file in the installer is a four step process:
@@ -150,6 +177,9 @@
             <!--<ComponentRef Id='License'/>-->
 
             <ComponentRef Id='binary0'/>
+            <ComponentGroupRef Id="LibsGroup"/>
+            <ComponentRef Id='GSettingsSchemaComponent'/>
+            <ComponentRef Id='GSettingsEnvVar'/>
 
             <Feature
                 Id='Environment'
