@@ -10,5 +10,5 @@ TODO:
 3. de app is nog niet te zien in het windows zoek menu (toevoegen aan path of sort index ofz?)
 4. de app icon laad niet
 
-create .msi installer with:
+create .msi installer inside msys64 mingw with:
 cargo wix
