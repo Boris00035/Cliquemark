@@ -1,6 +1,4 @@
-// Todo: 
-// watermark knop
-// remove explicit Rc's, as gtk implements that itself and can just do .clone()
+#![cfg_attr(windows, windows_subsystem = "windows")]
 
 use adw::{
     prelude::*,
