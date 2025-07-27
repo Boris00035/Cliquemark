@@ -1,5 +1,5 @@
 [package]
-name = "watermarklyGtk"
+name = "Cliquemark"
 version = "0.1.0"
 edition = "2021"
 description = "Application to watermark multiple images at the same time."

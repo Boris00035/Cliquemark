@@ -60,7 +60,7 @@
 
     <Product
         Id='*'
-        Name='watermarklyGtk'
+        Name='Cliquemark'
         UpgradeCode='F048D282-6C2C-446E-9461-10156D6346BE'
         Manufacturer='Boris van Boxtel borisvanboxtel@protonmail.com'
         Language='1033'
@@ -83,17 +83,17 @@
             DowngradeErrorMessage='A newer version of [ProductName] is already installed. Setup will now exit.'/>
 
         <Media Id='1' Cabinet='media1.cab' EmbedCab='yes' DiskPrompt='CD-ROM #1'/>
-        <Property Id='DiskPrompt' Value='watermarklyGtk Installation'/>
+        <Property Id='DiskPrompt' Value='Cliquemark Installation'/>
 
         <Directory Id='TARGETDIR' Name='SourceDir'>
 
           <Directory Id="ProgramMenuFolder">
-            <Directory Id="ApplicationProgramsFolder" Name="watermarklyGtk"/>
+            <Directory Id="ApplicationProgramsFolder" Name="Cliquemark"/>
           </Directory>
 
             <Directory Id='$(var.PlatformProgramFilesFolder)' Name='PFiles'>
 
-                <Directory Id='APPLICATIONFOLDER' Name='watermarklyGtk'>
+                <Directory Id='APPLICATIONFOLDER' Name='Cliquemark'>
 
                 <Component Id="GSettingsEnvVar" Guid="e6f2bae7-6e45-4b96-85d6-12164bb5a814">
                   <Environment
@@ -104,7 +104,7 @@
                     Part="last"
                     Action="set"
                     System="yes" />
-                  <RegistryValue Root="HKLM" Key="SOFTWARE\watermarklyGtk" Name="Installed" Type="integer" Value="1" KeyPath="yes"/>
+                  <RegistryValue Root="HKLM" Key="SOFTWARE\Cliquemark" Name="Installed" Type="integer" Value="1" KeyPath="yes"/>
                 </Component>
 
                   <Directory Id="ShareFolder" Name="share">
@@ -156,9 +156,9 @@
                         <Component Id='binary0' Guid='*'>
                             <File
                                 Id='exe0'
-                                Name='watermarklyGtk.exe'
+                                Name='Cliquemark.exe'
                                 DiskId='1'
-                                Source='$(var.CargoTargetBinDir)\watermarklyGtk.exe'
+                                Source='$(var.CargoTargetBinDir)\Cliquemark.exe'
                                 KeyPath='yes'/>
                         </Component>
                     </Directory>
@@ -169,13 +169,13 @@
         <DirectoryRef Id="ApplicationProgramsFolder">
             <Component Id="ApplicationShortcut" Guid="4780fba5-fa9b-4e72-afad-770e71c8e60e">
               <Shortcut Id="startMenuShortcut"
-                        Name="watermarklyGtk"
+                        Name="Cliquemark"
                         Description="Watermark multiple images at once"
-                        Target="[APPLICATIONFOLDER]bin\watermarklyGtk.exe"
+                        Target="[APPLICATIONFOLDER]bin\Cliquemark.exe"
                         WorkingDirectory="APPLICATIONFOLDER"/>
               <RemoveFolder Id="RemoveApplicationProgramsFolder" On="uninstall"/>
               <RegistryValue Root="HKCU"
-                            Key="Software\watermarklyGtk"
+                            Key="Software\Cliquemark"
                             Name="installed"
                             Type="integer"
                             Value="1"
