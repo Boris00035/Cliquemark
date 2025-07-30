@@ -7,4 +7,10 @@ TODO:
 1. GLib-GIO-WARNING **: 15:58:13.474: win32 session dbus binary not found
 
 create .msi installer inside msys64 mingw with:
-cargo wix
+`cargo wix`
+
+create .app installer on a mac with:
+```
+cargo bundle --release
+
+```
