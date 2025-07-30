@@ -12,5 +12,5 @@ create .msi installer inside msys64 mingw with:
 create .app installer on a mac with:
 ```
 cargo bundle --release
-
+dylibbundler -od -b -x target/release/bundle/osx/Cliquemark.app/Contents/MacOS/Cliquemark -d target/release/bundle/osx/Cliquemark.app/Contents/libs
 ```
