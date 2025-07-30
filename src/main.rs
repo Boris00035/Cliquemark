@@ -123,6 +123,8 @@ fn build_ui(app: &Application) {
         .content(&main_stack)
         .build()
     );
+
+    main_window.set_icon_name(Some("my-app-icon"));
     main_window.set_default_size(1500, 900);
 
     let settings_header_container = Box::builder()

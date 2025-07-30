@@ -107,6 +107,18 @@
                 </Component>
 
                   <Directory Id="ShareFolder" Name="share">
+                    <Directory Id="IconsDir" Name="icons">
+                      <Directory Id="HicolorDir" Name="hicolor">
+                        <Directory Id="SizeDir256" Name="256x256">
+                          <Directory Id="AppsDir" Name="apps">
+                            <Component Id="IconComponent" Guid="*">
+                              <File Id="MyAppIconFile" Name="my-app-icon.png" Source="assets\my-app-icon.png" />
+                            </Component>
+                          </Directory>
+                        </Directory>
+                      </Directory>
+                    </Directory>
+
                     <Directory Id="GlibFolder" Name="glib-2.0">
                       <Directory Id="SchemasFolder" Name="schemas">
                         <Component Id="GSettingsSchemaComponent" Guid="*">
@@ -207,6 +219,7 @@
             <ComponentRef Id='GSettingsSchemaComponent'/>
             <ComponentRef Id='GSettingsEnvVar'/>
             <ComponentRef Id="ApplicationShortcut"/>
+            <ComponentRef Id="IconComponent"/>
 
             <Feature
                 Id='Environment'
