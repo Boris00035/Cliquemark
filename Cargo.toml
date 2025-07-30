@@ -21,3 +21,6 @@ identifier = "com.Clique.mark"
 short_description = "Application to watermark multiple images at the same time."
 icon = ["assets/logo.png"]
 author = "Boris van Boxtel"
+
+[package.metadata.wix]
+eula = false

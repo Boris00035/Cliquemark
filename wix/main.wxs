@@ -61,7 +61,7 @@
     <Product
         Id='*'
         Name='Cliquemark'
-        UpgradeCode='F048D282-6C2C-446E-9461-10156D6346BE'
+        UpgradeCode='E0AA3744-7019-42B0-89BA-E59780ECC4B6'
         Manufacturer='Boris van Boxtel borisvanboxtel@protonmail.com'
         Language='1033'
         Codepage='1252'
@@ -87,12 +87,11 @@
 
         <Directory Id='TARGETDIR' Name='SourceDir'>
 
-          <Directory Id="ProgramMenuFolder">
-            <Directory Id="ApplicationProgramsFolder" Name="Cliquemark"/>
-          </Directory>
+        <Directory Id="ProgramMenuFolder">
+          <Directory Id="ApplicationProgramsFolder" Name="Cliquemark"/>
+        </Directory>
 
             <Directory Id='$(var.PlatformProgramFilesFolder)' Name='PFiles'>
-
                 <Directory Id='APPLICATIONFOLDER' Name='Cliquemark'>
 
                 <Component Id="GSettingsEnvVar" Guid="e6f2bae7-6e45-4b96-85d6-12164bb5a814">
@@ -111,16 +110,12 @@
                     <Directory Id="GlibFolder" Name="glib-2.0">
                       <Directory Id="SchemasFolder" Name="schemas">
                         <Component Id="GSettingsSchemaComponent" Guid="*">
-                          <File
+                        <File
                             Id="GSettingsSchemaFile"
                             Name="gschemas.compiled"
                             DiskId="1"
                             Source="schema_files/gschemas.compiled"
                             KeyPath="yes"/>
-                        </Component>
-                      </Directory>
-                  </Directory>
-                </Directory>
                     
                     <!--
                       Enabling the license sidecar file in the installer is a four step process:
@@ -141,9 +136,13 @@
                         <File Id='LicenseFile' Name='ChangeMe' DiskId='1' Source='C:\Path\To\File' KeyPath='yes'/>
                     </Component>
                     -->
+                    </Component>
+                      </Directory>
+                  </Directory>
+                </Directory>
 
                     <Directory Id='Bin' Name='bin'>
-                        <Component Id='Path' Guid='3778E151-081E-4595-A1B0-6786FEFFBDB3' KeyPath='yes'>
+                        <Component Id='Path' Guid='482AE0B0-2A67-4C42-9909-89EB16B3EA95' KeyPath='yes'>
                             <Environment
                                 Id='PATH'
                                 Name='PATH'
@@ -159,7 +158,8 @@
                                 Name='Cliquemark.exe'
                                 DiskId='1'
                                 Source='$(var.CargoTargetBinDir)\Cliquemark.exe'
-                                KeyPath='yes'/>
+                                KeyPath='yes'
+                                />
                         </Component>
                     </Directory>
                 </Directory>
@@ -172,7 +172,10 @@
                         Name="Cliquemark"
                         Description="Watermark multiple images at once"
                         Target="[APPLICATIONFOLDER]bin\Cliquemark.exe"
-                        WorkingDirectory="APPLICATIONFOLDER"/>
+                        WorkingDirectory="APPLICATIONFOLDER"
+                        Icon="ProductICO"
+                        IconIndex="0"
+                        />
               <RemoveFolder Id="RemoveApplicationProgramsFolder" On="uninstall"/>
               <RegistryValue Root="HKCU"
                             Key="Software\Cliquemark"
@@ -224,8 +227,8 @@
           The product icon is the graphic that appears in the Add/Remove
           Programs control panel for the application.
         -->
-        <!--<Icon Id='ProductICO' SourceFile='wix\Product.ico'/>-->
-        <!--<Property Id='ARPPRODUCTICON' Value='ProductICO' />-->
+        <Icon Id='ProductICO' SourceFile='assets\logo.ico'/>
+        <Property Id='ARPPRODUCTICON' Value='ProductICO' />
 
         
         <!--
@@ -239,23 +242,28 @@
         -->
         <!--<Property Id='ARPHELPLINK' Value='ChangeMe'/>-->
 
-        <UI>
-            <UIRef Id='WixUI_FeatureTree'/>
-            
-            <!--
-              Enabling the EULA dialog in the installer is a three step process:
+        <UI Id="UserInterface">
+        <Property Id="WIXUI_INSTALLDIR" Value="TARGETDIR" />
+        <Property Id="WixUI_Mode" Value="Custom" />
 
-                1. Comment out or remove the two `Publish` tags that follow the
-                   `WixVariable` tag.
-                2. Uncomment the `<WixVariable Id='WixUILicenseRtf' Value='Path\to\Eula.rft'>` tag further down
-                3. Replace the `Value` attribute of the `WixVariable` tag with
-                   the path to a RTF file that will be used as the EULA and
-                   displayed in the license agreement dialog.
-            -->
-            <Publish Dialog='WelcomeDlg' Control='Next' Event='NewDialog' Value='CustomizeDlg' Order='99'>1</Publish>
-            <Publish Dialog='CustomizeDlg' Control='Back' Event='NewDialog' Value='WelcomeDlg' Order='99'>1</Publish>
+        <TextStyle Id="WixUI_Font_Normal" FaceName="Tahoma" Size="8" />
+        <TextStyle Id="WixUI_Font_Bigger" FaceName="Tahoma" Size="9" Bold="yes" />
+        <TextStyle Id="WixUI_Font_Title"  FaceName="Tahoma" Size="9" Bold="yes" />
+
+        <Property Id="DefaultUIFont" Value="WixUI_Font_Normal" />
+
+        <DialogRef Id="ProgressDlg" />
+        <DialogRef Id="ErrorDlg" />
+        <DialogRef Id="FilesInUse" />
+        <DialogRef Id="FatalError" />
+        <DialogRef Id="UserExit" />
+
+        <Publish Dialog="ExitDialog" Control="Finish" Event="EndDialog" Value="Return" Order="999">1</Publish>
+        <Publish Dialog="WelcomeDlg" Control="Next" Event="EndDialog" Value="Return" Order="2"></Publish>
 
         </UI>
+        <UIRef Id="WixUI_Common" />
+
 
         
         <!--
