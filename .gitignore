@@ -5,3 +5,4 @@
 /libadwaita
 /assets
 Cargo.lock
+.DS_Store
