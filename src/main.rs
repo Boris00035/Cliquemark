@@ -105,7 +105,7 @@ fn calculate_watermark_position(
 
 fn build_ui(app: &Application) {
     let main_page_splitview = OverlaySplitView::builder()
-        // .min_sidebar_width(350.0)
+        .min_sidebar_width(350.0)
         .build();
 
     let main_stack = Stack::builder()
