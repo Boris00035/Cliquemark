@@ -103,8 +103,10 @@ fn calculate_watermark_position(
 
 
 fn build_ui(app: &Application) {
+    let window_default_size = (1500,900);
+
     let main_page_splitview = OverlaySplitView::builder()
-        // .min_sidebar_width(350.0)
+        // .min_sidebar_width(400.0)
         .build();
 
     let main_stack = Stack::builder()
@@ -124,12 +126,12 @@ fn build_ui(app: &Application) {
     );
 
     main_window.set_icon_name(Some("my-app-icon"));
-    let default_size = (1500,900);
-    main_window.set_default_size(default_size.0, default_size.1);
+    main_window.set_default_size(window_default_size.0, window_default_size.1);
 
     let settings_header_container = Box::builder()
         .orientation(Orientation::Vertical)
         .vexpand(true)
+        .hexpand(true)
         .build();
 
     let settings_header = HeaderBar::builder()
@@ -223,7 +225,6 @@ fn build_ui(app: &Application) {
     selection_button_grid.attach(&*chosen_watermark_text, 1,1,1,1);
 
 
-    // Alignment check boxes
     let top_left_toggle = Toggle::builder()
         .label("Top left")
         .build();
@@ -238,7 +239,7 @@ fn build_ui(app: &Application) {
         .build();
     // top_left_toggle.set_child(true);
     let alignment_toggle_group = Rc::new(ToggleGroup::builder()
-        .valign(Align::Center)
+        .hexpand(true)
         .build()
     );
     alignment_toggle_group.add(top_left_toggle);
@@ -246,7 +247,7 @@ fn build_ui(app: &Application) {
     alignment_toggle_group.add(bottom_left_toggle);
     alignment_toggle_group.add(bottom_right_toggle);
     alignment_toggle_group.set_active(3);
-    
+
     settings_box.append(&*alignment_toggle_group);
 
 
@@ -264,7 +265,7 @@ fn build_ui(app: &Application) {
         .draw_value(true)
         .adjustment(&scale_adjustment)
         // .margin_bottom(15)    
-        .width_request(f32::round(default_size.0 as f32 / 10.0) as i32)
+        .width_request(f32::round(window_default_size.0 as f32 / 10.0) as i32)
         .value_pos(PositionType::Right)
         .build()
     );
