@@ -18,7 +18,7 @@ use adw::{
     PreferencesGroup,
     ActionRow,
     Spinner,
-    SpinRow
+    SpinRow,
 };
 
 use gtk::{
@@ -30,7 +30,6 @@ use gtk::{
     Adjustment,
     FileDialog,
     Grid,
-    ScrolledWindow,
     Overlay,
     Picture,
     gdk_pixbuf::Pixbuf,
@@ -105,7 +104,7 @@ fn calculate_watermark_position(
 
 fn build_ui(app: &Application) {
     let main_page_splitview = OverlaySplitView::builder()
-        .min_sidebar_width(350.0)
+        // .min_sidebar_width(350.0)
         .build();
 
     let main_stack = Stack::builder()
@@ -125,7 +124,8 @@ fn build_ui(app: &Application) {
     );
 
     main_window.set_icon_name(Some("my-app-icon"));
-    main_window.set_default_size(1500, 900);
+    let default_size = (1500,900);
+    main_window.set_default_size(default_size.0, default_size.1);
 
     let settings_header_container = Box::builder()
         .orientation(Orientation::Vertical)
@@ -140,6 +140,7 @@ fn build_ui(app: &Application) {
     
     let settings_box_container = Box::builder()
         .vexpand(true)
+        .hexpand(true)
         .margin_start(50)
         .margin_end(50)
         .build();
@@ -150,6 +151,7 @@ fn build_ui(app: &Application) {
         .valign(Align::Center)
         .halign(Align::Center)
         .orientation(Orientation::Vertical)
+        .hexpand(true)
         .spacing(12)
         .margin_top(50)
         .margin_bottom(50)
@@ -160,12 +162,15 @@ fn build_ui(app: &Application) {
         .child(&settings_header_container)
         .title("Settings")
         .vexpand(true)
+        .hexpand(true)
         .build();
     main_page_splitview.set_sidebar(Some(&settings_sidebar));
     
     // Get rid of this grid, replace with nested gtkBox
     let selection_button_grid = Grid::builder()
         .margin_bottom(40)
+        .hexpand(true)
+        .column_homogeneous(true)
         .build();
 
     selection_button_grid.set_row_spacing(12);
@@ -175,56 +180,47 @@ fn build_ui(app: &Application) {
     // folder directory chooser
     let choose_folder_button = Button::builder()
         .label("Select Folder")
-        // .hexpand(false)
+        .hexpand(true)
         // .vexpand(true)
         .valign(Align::Fill)
         .halign(Align::Fill)
         .build();
 
+    let default_entry_text = EntryBuffer::new(Some("Nothing chosen"));
     let chosen_folder_text = Rc::new(Entry::builder()
         .hexpand(true)
-        .vexpand(false)
+        // .vexpand(false)
         .editable(false)
         .sensitive(false)
+        .buffer(&default_entry_text)
         .build()
     );
-    let default_entry_text = EntryBuffer::new(Some("Nothing chosen"));
-    chosen_folder_text.set_buffer(&default_entry_text);
-
-    let folder_scrolled_container = ScrolledWindow::builder()
-        .build();
-
-    // Add the TextView to the ScrolledWindow
-    folder_scrolled_container.set_child(Some(&*chosen_folder_text));
 
     selection_button_grid.attach(&choose_folder_button, 0, 0, 1, 1);
-    selection_button_grid.attach(&folder_scrolled_container, 1,0,1,1);
+    selection_button_grid.attach(&*chosen_folder_text, 1,0,1,1);
 
     // watermark chooser
     let choose_watermark_button = Button::builder()
         .label("Select Watermark")
-        // .hexpand(false)
+        .hexpand(true)
         // .vexpand(true)
         .valign(Align::Fill)
         .halign(Align::Fill)
         .build();
     // choose_watermark_button.add_css_class("suggested-action");
     
+    let default_watermark_text = EntryBuffer::new(Some("Nothing chosen"));
     let chosen_watermark_text = Rc::new(Entry::builder()
         .hexpand(true)
         .vexpand(false)
         .editable(false)
         .sensitive(false)
+        .buffer(&default_watermark_text)
         .build()
     );
-    let default_watermark_text = EntryBuffer::new(Some("Nothing chosen"));
-    chosen_watermark_text.set_buffer(&default_watermark_text);
 
-    let watermark_scrolled_container = ScrolledWindow::builder()
-        .build();
-    watermark_scrolled_container.set_child(Some(&*chosen_watermark_text));
     selection_button_grid.attach(&choose_watermark_button, 0, 1, 1, 1);
-    selection_button_grid.attach(&watermark_scrolled_container, 1,1,1,1);
+    selection_button_grid.attach(&*chosen_watermark_text, 1,1,1,1);
 
 
     // Alignment check boxes
@@ -256,7 +252,7 @@ fn build_ui(app: &Application) {
 
     let image_configs_container = PreferencesGroup::builder()
     // .can_focus(false)
-    .build();
+        .build();
     settings_box.append(&image_configs_container);
 
 
@@ -268,7 +264,7 @@ fn build_ui(app: &Application) {
         .draw_value(true)
         .adjustment(&scale_adjustment)
         // .margin_bottom(15)    
-        .width_request(250)
+        .width_request(f32::round(default_size.0 as f32 / 10.0) as i32)
         .value_pos(PositionType::Right)
         .build()
     );
@@ -280,11 +276,10 @@ fn build_ui(app: &Application) {
     image_configs_container.add(&settings_action_row);
 
 
-    let margin_adjustment = Adjustment::new(0.0, 0.0, 1000.0, 10.0, 10.0, 0.0);
+    let margin_adjustment = Adjustment::new(0.0, 0.0, 1000.0, 1.0, 1.0, 0.0);
     let margin_spin_row = Rc::new(SpinRow::builder()
         .title("Margin:")
         .adjustment(&margin_adjustment)
-        // .climb_rate(10.0)
         .build()
     );
     image_configs_container.add(&*margin_spin_row);
