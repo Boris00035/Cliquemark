@@ -3,6 +3,5 @@
 /archive
 /gtk
 /libadwaita
-/assets
 Cargo.lock
 .DS_Store
