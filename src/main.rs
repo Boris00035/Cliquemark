@@ -240,6 +240,7 @@ fn build_ui(app: &Application) {
     // top_left_toggle.set_child(true);
     let alignment_toggle_group = Rc::new(ToggleGroup::builder()
         .hexpand(true)
+        .can_shrink(false)
         .build()
     );
     alignment_toggle_group.add(top_left_toggle);
@@ -265,7 +266,7 @@ fn build_ui(app: &Application) {
         .draw_value(true)
         .adjustment(&scale_adjustment)
         // .margin_bottom(15)    
-        .width_request(f32::round(window_default_size.0 as f32 / 10.0) as i32)
+        // .width_request(f32::round(window_default_size.0 as f32 / 10.0) as i32)
         .value_pos(PositionType::Right)
         .build()
     );
