@@ -2,6 +2,9 @@
 
 use adw::{
     prelude::*,
+    prelude::{
+        EntryExt,
+    },
     Application,
     glib,
     ApplicationWindow, 
@@ -197,6 +200,8 @@ fn build_ui(app: &Application) {
         .buffer(&default_entry_text)
         .build()
     );
+    // chosen_folder_text.set_alignment(0.5);
+    EntryExt::set_alignment(&*chosen_folder_text, 0.5);
 
     selection_button_grid.attach(&choose_folder_button, 0, 0, 1, 1);
     selection_button_grid.attach(&*chosen_folder_text, 1,0,1,1);
@@ -220,6 +225,7 @@ fn build_ui(app: &Application) {
         .buffer(&default_watermark_text)
         .build()
     );
+    EntryExt::set_alignment(&*chosen_watermark_text, 0.5);
 
     selection_button_grid.attach(&choose_watermark_button, 0, 1, 1, 1);
     selection_button_grid.attach(&*chosen_watermark_text, 1,1,1,1);
@@ -266,7 +272,7 @@ fn build_ui(app: &Application) {
         .draw_value(true)
         .adjustment(&scale_adjustment)
         // .margin_bottom(15)    
-        // .width_request(f32::round(window_default_size.0 as f32 / 10.0) as i32)
+        .width_request(f32::round(window_default_size.0 as f32 / 6.0) as i32)
         .value_pos(PositionType::Right)
         .build()
     );
