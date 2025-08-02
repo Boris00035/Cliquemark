@@ -373,6 +373,8 @@ fn build_ui(app: &Application) {
     preview_side_sub_box.append(&*preview_widget);
 
     let image_preview = Rc::new(Picture::builder()
+        .hexpand(true)
+        .vexpand(true)
         .build()
     );
     preview_widget.set_child(Some(&*image_preview));
