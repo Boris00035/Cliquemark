@@ -19,7 +19,7 @@ imageproc = "0.25.0"
 name = "Cliquemark"
 identifier = "com.Clique.mark"
 short_description = "Application to watermark multiple images at the same time."
-icon = ["assets/logo.png"]
+icon = ["assets/logo.icns"]
 author = "Boris van Boxtel"
 
 [package.metadata.wix]

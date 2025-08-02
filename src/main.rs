@@ -46,7 +46,13 @@ use gtk::{
     };
 
 use std::{
-    cell::RefCell, fs, io, path::PathBuf, rc::Rc, char,
+    cell::RefCell, 
+    fs, 
+    io, 
+    path::PathBuf, 
+    rc::Rc, 
+    char,
+    env
 };
 
 use rayon::prelude::*;
@@ -65,6 +71,24 @@ use rand::prelude::IndexedRandom;
 const APP_ID: &str = "org.gtk_rs.Cliquemark"; 
 
 fn main() -> glib::ExitCode {
+    if cfg!(target_os = "macos") {
+        if let Ok(exe_path) = env::current_exe() {
+            let resources_path = exe_path
+                .parent()                
+                .and_then(|p| p.parent()) 
+                .map(|p| p.join("Resources"))
+                .expect("Unexpected path");
+
+            env::set_var("XDG_DATA_DIRS", &resources_path.to_string_lossy().to_string());
+            
+            let loader_dir = &resources_path.join("lib/gdk-pixbuf-2.0/2.10.0/loaders");
+            let loader_cache = &resources_path.join("lib/gdk-pixbuf-2.0/2.10.0/loaders.cache");
+    
+            env::set_var("GDK_PIXBUF_MODULEDIR", &loader_dir);
+            env::set_var("GDK_PIXBUF_MODULE_FILE", &loader_cache);
+        }
+    }
+
     let app = Application::builder().application_id(APP_ID).build();
     app.connect_activate(build_ui);
     return app.run();
