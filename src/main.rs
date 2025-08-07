@@ -1,3 +1,7 @@
+// TODO:
+// unlock scale slider with typing in the field
+// add sensible defaults to the slider when watermark is chosen
+
 #![cfg_attr(windows, windows_subsystem = "windows")]
 
 use adw::{
@@ -22,6 +26,8 @@ use adw::{
     ActionRow,
     Spinner,
     SpinRow,
+    ToastOverlay,
+    Toast
 };
 
 use gtk::{
@@ -302,7 +308,7 @@ fn build_ui(app: &Application) {
     );
 
     let settings_action_row = ActionRow::builder()
-        .title("Scale:")
+        .title("Scale")
         .build();
     settings_action_row.add_suffix(&*scale_slider);
     image_configs_container.add(&settings_action_row);
@@ -310,7 +316,7 @@ fn build_ui(app: &Application) {
 
     let margin_adjustment = Adjustment::new(0.0, 0.0, 1000.0, 1.0, 1.0, 0.0);
     let margin_spin_row = Rc::new(SpinRow::builder()
-        .title("Margin:")
+        .title("Margin")
         .adjustment(&margin_adjustment)
         .build()
     );
@@ -338,11 +344,17 @@ fn build_ui(app: &Application) {
         .build(); 
     header_container.append(&preview_header);
 
+    
+
     let preview_navigation_page = NavigationPage::builder()
         .title("Preview")
         .child(&header_container)
         .build();
-    main_page_splitview.set_content(Some(&preview_navigation_page));
+    
+    let toast_overlay = Rc::new(ToastOverlay::new());
+    toast_overlay.set_child(Some(&preview_navigation_page));
+    
+    main_page_splitview.set_content(Some(&*toast_overlay));
 
     let preview_side_box = Box::builder()
         .margin_start(50)
@@ -495,6 +507,7 @@ fn build_ui(app: &Application) {
         let watermark_progress_bar = Rc::clone(&watermark_progress_bar);
         let chosen_folder_text= Rc::clone(&chosen_folder_text);
         let image_preview = Rc::clone(&image_preview);
+        let toast_overlay = Rc::clone(&toast_overlay);
 
         let preview_image_dimensions = Rc::clone(&preview_image_dimensions);
 
@@ -507,6 +520,8 @@ fn build_ui(app: &Application) {
             let image_preview = Rc::clone(&image_preview);
             let watermark_progress_bar = Rc::clone(&watermark_progress_bar);
             let preview_image_dimensions = Rc::clone(&preview_image_dimensions);
+            let toast_overlay = Rc::clone(&toast_overlay);
+
 
             folder_dialog.select_folder(Some(&*main_window),None::<&gtk::gio::Cancellable>, 
             move |result| {
@@ -516,11 +531,8 @@ fn build_ui(app: &Application) {
                 } else {
                     return;
                 }
-                
-                chosen_folder_text.set_text(folder_path.to_str().unwrap());
-                
-                let random_preview_entry;
-                let entries = std::fs::read_dir(folder_path).unwrap()
+
+                let entries = std::fs::read_dir(&folder_path).unwrap()
                 .filter_map(|entry| {
                     let entry = entry.ok()?;
                     let path = entry.path();
@@ -533,13 +545,19 @@ fn build_ui(app: &Application) {
                 .collect::<Vec<_>>();
                 
                 if entries.is_empty() {
-                    println!("No image files found in the folder.");
+                    let no_images_found_toast = Toast::builder()
+                        .title("No images found in chosen folder")
+                        .build();
+                    
+                    toast_overlay.add_toast(no_images_found_toast);
                     return;
                 }
-
+                
+                chosen_folder_text.set_text(folder_path.to_str().unwrap());
                 watermark_progress_bar.set_pulse_step(1.0 / entries.len() as f64);
 
                 let mut rng = rand::rng();
+                let random_preview_entry;
                 if let Some(random_image) = entries.choose(&mut rng) {
                     random_preview_entry = random_image;
                 } else {
