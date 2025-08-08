@@ -1,5 +1,5 @@
 // TODO:
-// add sensible defaults to the slider when watermark is chosen
+// make the watermark slider go from 0 size to max size that fits in the main image
 // open file explorer with exported folder
 // add check if watermark and image folder are both set when pressing watermark button
 
@@ -120,9 +120,11 @@ fn calculate_watermark_position(
         global_scale = image_preview.width() as f32 / preview_image_dimensions.borrow()[0] as f32;
     }
 
+    let range_correction: f64 = if preview_image_dimensions.borrow()[0] <= preview_image_dimensions.borrow()[1] { 1.0 / width_ratio } else { 1.0 / height_ratio };
 
-    let width = (width_ratio * image_preview.width() as f64 * scale_slider_value).ceil() as i32;
-    let height = (height_ratio * image_preview.height() as f64 * scale_slider_value).ceil() as i32;
+
+    let width = (width_ratio * image_preview.width() as f64 * scale_slider_value * range_correction).ceil() as i32;
+    let height = (height_ratio * image_preview.height() as f64 * scale_slider_value * range_correction).ceil() as i32;
 
     let adjusted_margin = (margin_value as f32 * global_scale).ceil() as i32;
 
@@ -295,7 +297,7 @@ fn build_ui(app: &Application) {
 
 
     // scale slider
-    let scale_adjustment = Adjustment::new(1.0,0.01, 2.1,0.01,0.01,0.01); 
+    let scale_adjustment = Adjustment::new(0.2,0.01, 1.01,0.01,0.01,0.01); 
     let scale_slider = Rc::new(Scale::builder()
         .digits(2)
         .hexpand(true)
@@ -553,6 +555,8 @@ fn build_ui(app: &Application) {
                 }
                 
                 chosen_folder_text.set_text(folder_path.to_str().unwrap());
+                chosen_folder_text.set_position(-1);
+
                 watermark_progress_bar.set_pulse_step(1.0 / entries.len() as f64);
 
                 let mut rng = rand::rng();
@@ -613,7 +617,9 @@ fn build_ui(app: &Application) {
                             return;
                         }
 
-                        chosen_watermark_text.set_text(&file_path.to_str().unwrap());                        
+                        chosen_watermark_text.set_text(&file_path.to_str().unwrap());    
+                        chosen_watermark_text.set_position(-1);       
+                                     
                         let mut preview_watermark_pixbuf = Pixbuf::from_file(&file_path).unwrap();
 
                         let mut watermark_preview_dims = preview_watermark_dimensions.borrow_mut();
@@ -661,13 +667,66 @@ fn build_ui(app: &Application) {
 
         let watermarking_state_sender = watermarking_state_sender.clone();
         let progress_sender = progress_sender.clone();
+        let toast_overlay = Rc::clone(&toast_overlay);
+    
+        // println!("{:?}", chosen_folder);
+        let path_buf = PathBuf::from(&chosen_folder); 
+        
+        let image_entries = match std::fs::read_dir(path_buf) {
+            Ok(entries) => entries,
+            Err(_e) => {
+                let toast_message = Toast::builder()
+                    .title("Failed to read folder.")
+                    .build();
+        
+                toast_overlay.add_toast(toast_message);        
+                return;
+            }
+        }.filter_map(|entry| {
+            let entry = entry.ok()?;
+            let path = entry.path();
+            if is_image_file(&path) {
+                return Some(path);
+            } else {
+                return None;
+            }
+        }).collect::<Vec<_>>();
+
+        if image_entries.is_empty() {
+            let toast_message = Toast::builder()
+                    .title("No images found.")
+                    .build();
+        
+                toast_overlay.add_toast(toast_message);
+            return;
+        }
+        
+        let mut watermark_decoder = match ImageReader::open(&chosen_watermark) {
+            Ok(reader) => reader.into_decoder().unwrap(),
+            Err(_e) => {
+                let toast_message = Toast::builder()
+                        .title("No valid watermark selected.")
+                        .build();
+            
+                    toast_overlay.add_toast(toast_message);
+                return;
+            }
+        };
+
+        let watermark_orientation = match watermark_decoder.orientation() {
+            Ok(orientation) => orientation,
+            Err(_) => ImageOrientation::NoTransforms,
+        };
+        let mut watermark_image = DynamicImage::from_decoder(watermark_decoder).unwrap();
+        watermark_image.apply_orientation(watermark_orientation);
 
         gio::spawn_blocking({
             move || {
                 apply_watermark(
                     relative_surface_area,
-                    chosen_folder,  
-                    chosen_watermark,
+                    chosen_folder,
+                    image_entries,  
+                    watermark_image,
                     relative_margin_width,
                     alignment,
                     watermarking_state_sender,
@@ -721,7 +780,8 @@ fn build_ui(app: &Application) {
 fn apply_watermark( 
     watermark_relative_surface_area:    f32,
     chosen_folder:                      String, 
-    chosen_watermark:                   String, 
+    image_entries:                      Vec<PathBuf>,
+    watermark_image:                    DynamicImage, 
     relative_margin_width:              f32,
     alignment:                          [i64; 4],
     watermarking_state_sender:          async_channel::Sender<bool>, 
@@ -731,37 +791,6 @@ fn apply_watermark(
     watermarking_state_sender
         .send_blocking(false)
         .expect("The confirm channel needs to be open.");
-    
-    // println!("{:?}", chosen_folder);
-    let path_buf = PathBuf::from(&chosen_folder); 
-    
-    let image_entries = match std::fs::read_dir(path_buf) {
-        Ok(entries) => entries,
-        Err(error_message) => {
-            eprintln!("Failed to read directory: {}", error_message);
-            watermarking_state_sender
-                .send_blocking(true)
-                .expect("The confirm channel needs to be open.");            
-            return;
-        }
-    }.filter_map(|entry| {
-        let entry = entry.ok()?;
-        let path = entry.path();
-        if is_image_file(&path) {
-            return Some(path);
-        } else {
-            return None;
-        }
-    }).collect::<Vec<_>>();
-    
-    let mut watermark_decoder = ImageReader::open(&chosen_watermark).unwrap().into_decoder().unwrap();
-    let watermark_orientation = match watermark_decoder.orientation() {
-        Ok(orientation) => orientation,
-        Err(_) => ImageOrientation::NoTransforms,
-    };
-    let mut watermark_image = DynamicImage::from_decoder(watermark_decoder).unwrap();
-    watermark_image.apply_orientation(watermark_orientation);
-
 
     let target_parent = PathBuf::from(&chosen_folder);
     // target_parent.push("../");
@@ -837,14 +866,12 @@ fn create_target_folder(base_name: String, target_parent: PathBuf) -> Result<Pat
 
         buf.push(char::from_digit(i, 10).unwrap());
 
-        println!("{:?}", target_parent);
         let target_folder = target_parent.join(&buf);
-        println!("{:?}", target_folder);
 
         match fs::create_dir(&target_folder) {
             Ok(()) => return Ok(target_folder),
             Err(error) if error.kind() == io::ErrorKind::AlreadyExists => i += 1,
-            Err(_error) => return Err(("Failed to create directory").to_string()),
+            Err(_e) => return Err(("Failed to create directory").to_string()),
         }
     }
 }
