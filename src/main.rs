@@ -1,8 +1,3 @@
-// TODO:
-// make the watermark slider go from 0 size to max size that fits in the main image
-// open file explorer with exported folder
-// add check if watermark and image folder are both set when pressing watermark button
-
 #![cfg_attr(windows, windows_subsystem = "windows")]
 
 use adw::{
@@ -720,17 +715,23 @@ fn build_ui(app: &Application) {
         let mut watermark_image = DynamicImage::from_decoder(watermark_decoder).unwrap();
         watermark_image.apply_orientation(watermark_orientation);
 
+        let target_parent = PathBuf::from(&chosen_folder);
+        // target_parent.push("../");
+        let target_folder = create_target_folder(("watermarked").to_string(), target_parent).unwrap();
+
         gio::spawn_blocking({
             move || {
                 apply_watermark(
                     relative_surface_area,
-                    chosen_folder,
                     image_entries,  
                     watermark_image,
+                    &target_folder,
                     relative_margin_width,
                     alignment,
                     watermarking_state_sender,
                     progress_sender);
+                
+                let _ = opener::open(target_folder);
                 }
             }
         );
@@ -779,9 +780,9 @@ fn build_ui(app: &Application) {
 
 fn apply_watermark( 
     watermark_relative_surface_area:    f32,
-    chosen_folder:                      String, 
     image_entries:                      Vec<PathBuf>,
-    watermark_image:                    DynamicImage, 
+    watermark_image:                    DynamicImage,
+    target_folder:                      &PathBuf,
     relative_margin_width:              f32,
     alignment:                          [i64; 4],
     watermarking_state_sender:          async_channel::Sender<bool>, 
@@ -791,11 +792,6 @@ fn apply_watermark(
     watermarking_state_sender
         .send_blocking(false)
         .expect("The confirm channel needs to be open.");
-
-    let target_parent = PathBuf::from(&chosen_folder);
-    // target_parent.push("../");
-    let target_folder = create_target_folder(("watermarked").to_string(), target_parent).unwrap();
-
 
     progress_sender.send_blocking(1).expect("The progress channel needs to be open.");
     let _results_array: Vec<Result<PathBuf, String>> = image_entries.into_par_iter().map(|image_entry| {
