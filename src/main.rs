@@ -1,6 +1,7 @@
 // TODO:
-// unlock scale slider with typing in the field
 // add sensible defaults to the slider when watermark is chosen
+// open file explorer with exported folder
+// add check if watermark and image folder are both set when pressing watermark button
 
 #![cfg_attr(windows, windows_subsystem = "windows")]
 
@@ -12,7 +13,6 @@ use adw::{
     Application,
     glib,
     ApplicationWindow, 
-    gdk,
     gdk::{
         Rectangle,
         Texture,
@@ -295,7 +295,7 @@ fn build_ui(app: &Application) {
 
 
     // scale slider
-    let scale_adjustment = Adjustment::new(1.0,0.01, 2.0,0.01,0.01,0.01); 
+    let scale_adjustment = Adjustment::new(1.0,0.01, 2.1,0.01,0.01,0.01); 
     let scale_slider = Rc::new(Scale::builder()
         .digits(2)
         .hexpand(true)
@@ -521,8 +521,7 @@ fn build_ui(app: &Application) {
             let watermark_progress_bar = Rc::clone(&watermark_progress_bar);
             let preview_image_dimensions = Rc::clone(&preview_image_dimensions);
             let toast_overlay = Rc::clone(&toast_overlay);
-
-
+            
             folder_dialog.select_folder(Some(&*main_window),None::<&gtk::gio::Cancellable>, 
             move |result| {
                 let folder_path: PathBuf;
@@ -546,7 +545,7 @@ fn build_ui(app: &Application) {
                 
                 if entries.is_empty() {
                     let no_images_found_toast = Toast::builder()
-                        .title("No images found in chosen folder")
+                        .title("No images found in chosen folder.")
                         .build();
                     
                     toast_overlay.add_toast(no_images_found_toast);
@@ -585,7 +584,8 @@ fn build_ui(app: &Application) {
         {
         let main_window = Rc::clone(&main_window);
         let chosen_watermark_text = Rc::clone(&chosen_watermark_text);
-        let watermark_preview = Rc::clone(&watermark_preview);   
+        let watermark_preview = Rc::clone(&watermark_preview);
+        let toast_overlay = Rc::clone(&toast_overlay);
 
         move |_| {
             let file_dialog = FileDialog::builder()
@@ -596,19 +596,24 @@ fn build_ui(app: &Application) {
             let watermark_preview = Rc::clone(&watermark_preview);   
             let preview_watermark_dimensions = Rc::clone(&preview_watermark_dimensions);
             let preview_widget = Rc::clone(&preview_widget);
+            let toast_overlay = Rc::clone(&toast_overlay);
          
             file_dialog.open(Some(&*main_window),None::<&gtk::gio::Cancellable>, move |result| {
                 match result {
                     Ok(file) => {
                         let file_path = &file.path().unwrap();
-                        // let file_path: &std::path::Path = &file.path().unwrap();
-                        chosen_watermark_text.set_text(&file_path.to_str().unwrap());
 
                         if !is_image_file(&file_path) {
-                            watermark_preview.set_paintable(None::<&gdk::Paintable>);
+                            let no_images_found_toast = Toast::builder()
+                                .title("This image format is not supported.")
+                                .build();
+                    
+                            toast_overlay.add_toast(no_images_found_toast);
+
                             return;
                         }
-                        
+
+                        chosen_watermark_text.set_text(&file_path.to_str().unwrap());                        
                         let mut preview_watermark_pixbuf = Pixbuf::from_file(&file_path).unwrap();
 
                         let mut watermark_preview_dims = preview_watermark_dimensions.borrow_mut();
