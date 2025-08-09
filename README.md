@@ -11,10 +11,9 @@ Select a folder with the images you would like to apply the watermark to, choose
 
 ## Install instructions:
 
-Download the correct installer according to your platform and open it. On Windows follow the instructions given there, on MacOS just drag the app into the application folder.
+Download the correct installer according to your platform and open it. ([Windows](https://github.com/Boris00035/Cliquemark/releases/download/v1.1.0/Cliquemark-0.1.0-x86_64.msi), [Mac](https://github.com/Boris00035/Cliquemark/releases/download/v1.1.0/Cliquemark-Installer.dmg)) On Windows follow the instructions given there, on MacOS just drag the app into the application folder.
 
 Now you can open the app by searching in the searchbar!
-<br/><br/>
 <br/><br/>
 
 ## Build instructions:
