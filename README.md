@@ -1,3 +1,9 @@
+<div align="center">
+  <img src="https://github.com/Boris00035/Cliquemark/blob/fb3efdf2a7b3155c1a7a8f5aa10a4cfffd51418c/assets/my-app-icon.png"
+    width=20%>
+</div>
+
+
 # Cliquemark
 Basic app to apply a watermark onto an image.
 
