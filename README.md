@@ -3,18 +3,31 @@ Basic app to apply a watermark onto an image.
 
 Select a folder with the images you would like to apply the watermark to, choose your watermark and the settings, and a watermarked copy will be saved in a new folder.
 
+## Install instructions:
+
+Download the correct installer according to your platform and open it. On Windows follow the instructions given there, on MacOS just drag the app into the application folder.
+
+Now you can open the app by searching in the searchbar!
+<br/><br/>
+<br/><br/>
+
+## Build instructions:
+
+### Windows
+Building is always done inside a msys64 mingw environment. (you will need to download some packages and set some environment variables)
+
+The build process is handled by the rust toolchain. (i.e. `cargo run --release`) 
+To create the .msi installer, execute `cargo wix`. 
+
+### MacOS
+Install `gtk` and `libadwaita` with HomeBrew.
+The build process is handled by the rust toolchain. (i.e. `cargo run --release`)
+To create the .dmg installer execute the included install script (on MacOS): `./build_macOS_installer.sh`
+<br/><br/>
+
 ### Potential features to add:
 1. Changing opacity of watermark
 
 ### TODO:
 1. Setting up github Actions to create a release
 2. Compressing .msi file, macOS installer is 3-4x smaller with the same libraries
-
-## Build instructions:
-
-### Windows
-create .msi installer inside msys64 mingw with (need some packages and environment variables): `cargo wix`
-
-### MacOS
-create .dmg installer on a mac with the included install script:
-`./build_macOS_installer.sh`
