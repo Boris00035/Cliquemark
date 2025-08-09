@@ -1,5 +1,5 @@
 # Cliquemark
-Basic app to apply a watermark onto another.
+Basic app to apply a watermark onto an image.
 
 Select a folder with the images you would like to apply the watermark to, choose your watermark and the settings, and a watermarked copy will be saved in a new folder.
 
@@ -9,7 +9,6 @@ Select a folder with the images you would like to apply the watermark to, choose
 ### TODO:
 1. Setting up github Actions to create a release
 2. Compressing .msi file, macOS installer is 3-4x smaller with the same libraries
-3. GLib-GIO-WARNING **: 15:58:13.474: win32 session dbus binary not found ; happens on windows machines who do not have gtk installed
 
 ## Build instructions:
 
